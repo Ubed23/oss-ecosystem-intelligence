@@ -1,0 +1,9 @@
+oss_intel:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: warehouse/oss.duckdb
+      threads: 4
+      settings:
+        TimeZone: 'UTC'

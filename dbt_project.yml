@@ -1,0 +1,35 @@
+name: oss_intel
+version: "1.0.0"
+config-version: 2
+profile: oss_intel
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  # Left-truncation boundary. Items created before this are present in the raw
+  # data (paginated by updated_at) but are a BIASED sample - only the ones
+  # touched recently came back. Rate metrics must filter on it; stock metrics
+  # (open backlog) deliberately do not.
+  analysis_start: "2025-10-01"
+  analysis_months: 12
+  response_sla_days: 7
+  release_window_days: 14
+  release_baseline_days: 90
+
+models:
+  oss_intel:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: table
+    marts:
+      +materialized: table
+
+seeds:
+  oss_intel:
+    repos:
+      +column_types:
+        repo_id: bigint

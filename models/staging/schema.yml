@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: stg_issues_prs
+    description: Deduplicated to the newest version per (repo_id, kind, number); bots removed.
+    columns:
+      - name: repo_id
+        tests: [not_null]
+      - name: author
+        tests: [not_null]
+
+  - name: stg_contributions
+    description: Person-actions for cohort analysis. Bots removed at source.
+    columns:
+      - name: actor
+        tests: [not_null]

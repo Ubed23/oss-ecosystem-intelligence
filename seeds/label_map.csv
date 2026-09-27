@@ -1,0 +1,17 @@
+raw_label_pattern,normalized_label
+bug,bug
+type: bug,bug
+type/bug,bug
+kind/bug,bug
+defect,bug
+regression,regression
+type: regression,regression
+performance,performance
+perf,performance
+documentation,docs
+docs,docs
+enhancement,feature
+feature,feature
+type: enhancement,feature
+good first issue,onboarding
+help wanted,onboarding

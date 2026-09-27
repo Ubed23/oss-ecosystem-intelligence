@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: dim_repo
+    description: One row per tracked repository. Joined on repo_id everywhere, never on name.
+    columns:
+      - name: repo_id
+        description: Stable GitHub numeric ID. Three of thirty repos were renamed during the window; IDs did not change.
+        tests: [unique, not_null]
+      - name: criticality_tier
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['tier_1', 'tier_2', 'tier_3']
+
+  - name: fct_repo_health_monthly
+    description: Repo x month. Rate metrics are window-filtered; the bug backlog is a stock metric and is not.
+    columns:
+      - name: repo_id
+        tests:
+          - not_null
+          - relationships: {to: ref('dim_repo'), field: repo_id}
+      - name: bus_factor_50
+        description: Null when a repo had no merged PRs in the window. Null means absence, never zero.
+
+  - name: fct_repo_health_current
+    description: Current snapshot. Responsiveness uses a trailing 90 days so a quiet month is not scored as unhealthy.
+    columns:
+      - name: repo_id
+        tests: [unique, not_null]
+      - name: health_score
+        tests: [not_null]
+      - name: health_tier
+        tests:
+          - accepted_values: {values: ['critical', 'at_risk', 'stable', 'healthy']}
+
+  - name: fct_contributor_cohorts
+    description: Retention triangle. Cohorts are left-truncated at the analysis start date.
+    columns:
+      - name: retention_rate
+        tests: [not_null]
+
+  - name: fct_release_reliability
+    columns:
+      - name: regression_ratio
+        description: Null when the baseline window held no bugs. Division guarded, not faked.
+
+  - name: fct_source_fidelity
+    description: GH Archive vs the authoritative API, month by month. Evidence for ADR 0002, shown on the methodology dashboard.

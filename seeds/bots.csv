@@ -1,0 +1,15 @@
+login
+dependabot
+dependabot[bot]
+github-actions[bot]
+pre-commit-ci[bot]
+codecov-commenter
+codecov[bot]
+renovate[bot]
+mergify[bot]
+stale[bot]
+allcontributors[bot]
+sonarcloud[bot]
+netlify[bot]
+pyup-bot
+web-flow
