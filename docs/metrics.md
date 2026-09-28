@@ -239,3 +239,6 @@ The pipeline is **automated and daily**. It is not real-time.
 - ADR 0001 — two ingestion sources after the October 2025 Events API change
 - ADR 0002 — GH Archive demoted to historical source after fidelity collapse
 - ADR 0003 — Scorecard via REST rather than BigQuery, on cost grounds
+
+
+Sensitivity. Rankings correlate 0.86–0.95 (Spearman) across three weighting schemes, so the ordering is robust. Tier assignment is not: 40% keep the same quartile, because quartile boundaries cut a continuous score. Reliability-weighted and community-weighted schemes correlate least (0.692), reflecting that responsiveness and community growth are partly independent. Four repositories are bottom-tier under every weighting. Detail: docs/sensitivity.csv.

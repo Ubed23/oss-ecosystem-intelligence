@@ -4,4 +4,4 @@ maintainer_activity_score,0.15,0.10,0.25
 response_time_score,0.20,0.30,0.10
 unresponded_score,0.15,0.20,0.10
 bug_backlog_score,0.15,0.20,0.05
-contributor_retention_score,0.15,0.05,0.30
+contributor_retention_score,0.15,0.05,0.20
