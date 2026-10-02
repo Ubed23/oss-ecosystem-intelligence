@@ -36,5 +36,5 @@ select
 from activity a
 join cohort_size s
   on a.repo_id = s.repo_id and a.cohort_month = s.cohort_month
-where a.months_since between 1 and 12
+where a.months_since between 1 and 12 and a.cohort_month >= timestamp '{{ var("analysis_start") }}'
 group by 1, 2, 3, 4
