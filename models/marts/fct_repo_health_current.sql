@@ -78,11 +78,12 @@ base as (
         m.median_merge_hours,
         g.median_release_gap_days,
         date_diff('day', g.last_release_at, current_timestamp) as days_since_release,
-        coalesce((
-            select avg(c.retention_rate)
+        (
+            select case when sum(c.cohort_contributors) >= {{ var('min_retention_sample') }}
+                        then sum(c.retained_contributors) * 1.0 / sum(c.cohort_contributors) end
             from {{ ref('fct_contributor_cohorts') }} c
             where c.repo_id = h.repo_id and c.months_since = 3
-        ), 0) as retention_m3
+        ) as retention_m3
     from {{ ref('fct_repo_health_monthly') }} h
     join {{ ref('dim_repo') }} d using (repo_id)
     left join recent_response r using (repo_id)
@@ -108,7 +109,8 @@ ranked as (
             when unresponded_rate is null then 0.5
             else percent_rank() over (partition by (unresponded_rate is null) order by unresponded_rate desc) end      as unresponded_score,
         percent_rank() over (order by bugs_open_at_month_end desc nulls last) as bug_backlog_score,
-        percent_rank() over (order by retention_m3)                           as contributor_retention_score
+        case when retention_m3 is null then 0.5
+            else percent_rank() over (partition by (retention_m3 is null) order by retention_m3) end as contributor_retention_score
     from base
 
 ),
