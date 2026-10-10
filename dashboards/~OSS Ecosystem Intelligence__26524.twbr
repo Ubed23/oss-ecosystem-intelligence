@@ -1421,8 +1421,8 @@
             <aggregation>Count</aggregation>
             <contains-null>true</contains-null>
             <attributes>
-              <attribute datatype='integer' name='context'>0</attribute>
-              <attribute datatype='string' name='gridOrigin'>&quot;A1:F1186:no:A1:F1186:0&quot;</attribute>
+              <attribute datatype='integer' name='context'>3</attribute>
+              <attribute datatype='string' name='gridOrigin'>&quot;A1:F1863:no:A1:F1863:0&quot;</attribute>
               <attribute datatype='boolean' name='header'>true</attribute>
               <attribute datatype='integer' name='outcome'>6</attribute>
             </attributes>
@@ -3048,13 +3048,14 @@
       <column-instance column='[Calculation_1822766788722692]' derivation='User' name='[usr:Calculation_1822766788722692:qk]' pivot='key' type='quantitative' />
       <column-instance column='[Calculation_1822766934011940]' derivation='User' name='[usr:Calculation_1822766934011940:nk]' pivot='key' type='nominal' />
       <column-instance column='[Calculation_1822767458324519]' derivation='User' name='[usr:Calculation_1822767458324519:nk]' pivot='key' type='nominal' />
+      <column-instance column='[Calculation_1822769754226797]' derivation='User' name='[usr:Calculation_1822769754226797:qk]' pivot='key' type='quantitative' />
       <group caption='Action (Ecosystem)' hidden='true' name='[Action (Ecosystem)]' name-style='unqualified' user:auto-column='sheet_link'>
         <groupfilter function='crossjoin'>
           <groupfilter function='level-members' level='[ecosystem]' />
         </groupfilter>
       </group>
       <extract count='-1' enabled='true' object-id='' units='records' user-specific='false'>
-        <connection access_mode='readonly' authentication='auth-none' author-locale='en_US' class='hyper' dbname='Data/Datasources/repos+ (oss-intel-marts).hyper' default-settings='yes' schema='Extract' sslmode='' tablename='Extract' update-time='' username='tableau_internal_user'>
+        <connection access_mode='readonly' authentication='auth-none' author-locale='en_US' class='hyper' dbname='Data/Datasources/repos+ (oss-intel-marts).hyper' default-settings='yes' schema='Extract' sslmode='' update-time='' username='tableau_internal_user'>
           <relation type='collection'>
             <relation name='repos_AA67009CEC474720A59F9C68F6BC15B1' table='[Extract].[repos_AA67009CEC474720A59F9C68F6BC15B1]' type='table' />
             <relation name='cohorts_92CC2075861640B18862F03EA8553D44' table='[Extract].[cohorts_92CC2075861640B18862F03EA8553D44]' type='table' />
@@ -3153,6 +3154,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>repo_full_name</remote-name>
@@ -3167,6 +3169,7 @@
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
+              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>package_name</remote-name>
@@ -3181,6 +3184,7 @@
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
+              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>ecosystem</remote-name>
@@ -3195,6 +3199,7 @@
               <approx-count>10</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
+              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>category</remote-name>
@@ -3209,6 +3214,7 @@
               <approx-count>22</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
+              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>criticality_tier</remote-name>
@@ -3223,6 +3229,7 @@
               <approx-count>3</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
+              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>scorecard_overall</remote-name>
@@ -3236,6 +3243,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>21</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>check_maintained</remote-name>
@@ -3249,6 +3257,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>3</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>check_code_review</remote-name>
@@ -3262,6 +3271,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>10</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>has_scorecard</remote-name>
@@ -3276,6 +3286,7 @@
               <approx-count>2</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
+              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>repo_id</remote-name>
@@ -3289,6 +3300,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[cohorts_92CC2075861640B18862F03EA8553D44]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>cohort_month</remote-name>
@@ -3302,6 +3314,7 @@
               <aggregation>Year</aggregation>
               <approx-count>12</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[cohorts_92CC2075861640B18862F03EA8553D44]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>months_since</remote-name>
@@ -3313,8 +3326,9 @@
               <family>cohorts</family>
               <local-type>integer</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>6</approx-count>
+              <approx-count>7</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[cohorts_92CC2075861640B18862F03EA8553D44]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>cohort_contributors</remote-name>
@@ -3326,8 +3340,9 @@
               <family>cohorts</family>
               <local-type>integer</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>122</approx-count>
+              <approx-count>127</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[cohorts_92CC2075861640B18862F03EA8553D44]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>retained_contributors</remote-name>
@@ -3339,8 +3354,9 @@
               <family>cohorts</family>
               <local-type>integer</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>39</approx-count>
+              <approx-count>115</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[cohorts_92CC2075861640B18862F03EA8553D44]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>retention_rate</remote-name>
@@ -3352,8 +3368,9 @@
               <family>cohorts</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>432</approx-count>
+              <approx-count>366</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[cohorts_92CC2075861640B18862F03EA8553D44]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>repo_id</remote-name>
@@ -3367,6 +3384,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>repo_full_name</remote-name>
@@ -3381,6 +3399,7 @@
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>ecosystem</remote-name>
@@ -3395,6 +3414,7 @@
               <approx-count>10</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>criticality_tier</remote-name>
@@ -3409,6 +3429,7 @@
               <approx-count>3</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>health_score</remote-name>
@@ -3420,8 +3441,9 @@
               <family>health_current</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>30</approx-count>
+              <approx-count>28</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>health_tier</remote-name>
@@ -3436,6 +3458,7 @@
               <approx-count>4</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bus_factor_50</remote-name>
@@ -3449,6 +3472,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>8</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>top_author_share</remote-name>
@@ -3462,6 +3486,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>ttfr_p50_hours</remote-name>
@@ -3473,8 +3498,9 @@
               <family>health_current</family>
               <local-type>integer</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>20</approx-count>
+              <approx-count>22</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>ttfr_p90_hours</remote-name>
@@ -3488,6 +3514,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>29</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>unresponded_rate</remote-name>
@@ -3499,8 +3526,9 @@
               <family>health_current</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>28</approx-count>
+              <approx-count>30</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>items_opened_90d</remote-name>
@@ -3514,6 +3542,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>prs_merged_90d</remote-name>
@@ -3527,6 +3556,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>29</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>distinct_pr_authors_90d</remote-name>
@@ -3538,8 +3568,9 @@
               <family>health_current</family>
               <local-type>integer</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>25</approx-count>
+              <approx-count>28</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bugs_open_at_month_end</remote-name>
@@ -3553,6 +3584,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>21</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>active_contributors</remote-name>
@@ -3566,6 +3598,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>22</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>retention_m3</remote-name>
@@ -3577,8 +3610,9 @@
               <family>health_current</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>26</approx-count>
+              <approx-count>23</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>median_release_gap_days</remote-name>
@@ -3592,6 +3626,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>25</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>days_since_release</remote-name>
@@ -3605,6 +3640,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>23</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>is_dormant</remote-name>
@@ -3618,6 +3654,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>2</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>scorecard_overall</remote-name>
@@ -3631,6 +3668,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>6</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>check_maintained</remote-name>
@@ -3644,6 +3682,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>3</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>has_scorecard</remote-name>
@@ -3658,6 +3697,7 @@
               <approx-count>1</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bus_factor_score</remote-name>
@@ -3671,6 +3711,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>8</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>maintainer_activity_score</remote-name>
@@ -3682,8 +3723,9 @@
               <family>health_current</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>25</approx-count>
+              <approx-count>28</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>response_time_score</remote-name>
@@ -3697,6 +3739,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>23</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>unresponded_score</remote-name>
@@ -3710,6 +3753,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>29</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bug_backlog_score</remote-name>
@@ -3723,6 +3767,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>21</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>contributor_retention_score</remote-name>
@@ -3734,8 +3779,9 @@
               <family>health_current</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>30</approx-count>
+              <approx-count>27</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>repo_id</remote-name>
@@ -3749,6 +3795,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>month_start</remote-name>
@@ -3762,6 +3809,7 @@
               <aggregation>Year</aggregation>
               <approx-count>13</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>ttfr_p50_hours</remote-name>
@@ -3775,6 +3823,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>144</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>ttfr_p90_hours</remote-name>
@@ -3788,6 +3837,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>342</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>items_opened</remote-name>
@@ -3801,6 +3851,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>245</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>unresponded_rate</remote-name>
@@ -3814,6 +3865,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>274</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>prs_merged</remote-name>
@@ -3827,6 +3879,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>184</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>distinct_pr_authors</remote-name>
@@ -3840,6 +3893,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>83</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>median_merge_hours</remote-name>
@@ -3853,6 +3907,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>156</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bugs_opened</remote-name>
@@ -3866,6 +3921,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>80</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bugs_open_at_month_end</remote-name>
@@ -3879,6 +3935,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>153</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>active_contributors</remote-name>
@@ -3892,6 +3949,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>181</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bus_factor_50</remote-name>
@@ -3905,6 +3963,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>8</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>repo_id</remote-name>
@@ -3918,6 +3977,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>month_start</remote-name>
@@ -3931,6 +3991,7 @@
               <aggregation>Year</aggregation>
               <approx-count>12</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>health_score</remote-name>
@@ -3944,6 +4005,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>274</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>score_change_6m</remote-name>
@@ -3957,6 +4019,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>136</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bus_factor_score</remote-name>
@@ -3970,6 +4033,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>8</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>maintainer_activity_score</remote-name>
@@ -3983,6 +4047,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>83</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>response_time_score</remote-name>
@@ -3996,6 +4061,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>143</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>unresponded_score</remote-name>
@@ -4009,6 +4075,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>309</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bug_backlog_score</remote-name>
@@ -4022,6 +4089,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>148</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>community_activity_score</remote-name>
@@ -4035,6 +4103,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>177</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>repo_id</remote-name>
@@ -4048,6 +4117,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>29</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[releases_4B81ABE9C9B54C03953ED1A0AF25E810]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>tag_name</remote-name>
@@ -4062,6 +4132,7 @@
               <approx-count>460</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
+              <object-id>[releases_4B81ABE9C9B54C03953ED1A0AF25E810]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>published_at</remote-name>
@@ -4075,6 +4146,7 @@
               <aggregation>Year</aggregation>
               <approx-count>243</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[releases_4B81ABE9C9B54C03953ED1A0AF25E810]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bugs_after</remote-name>
@@ -4088,6 +4160,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>68</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[releases_4B81ABE9C9B54C03953ED1A0AF25E810]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bugs_baseline</remote-name>
@@ -4101,6 +4174,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>164</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[releases_4B81ABE9C9B54C03953ED1A0AF25E810]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>expected_bugs</remote-name>
@@ -4114,6 +4188,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>164</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[releases_4B81ABE9C9B54C03953ED1A0AF25E810]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>regression_ratio</remote-name>
@@ -4127,6 +4202,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>203</approx-count>
               <contains-null>true</contains-null>
+              <object-id>[releases_4B81ABE9C9B54C03953ED1A0AF25E810]</object-id>
             </metadata-record>
           </metadata-records>
         </connection>
@@ -4193,6 +4269,9 @@
             </map>
             <map to='#a0cbe8'>
               <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:items_opened:qk]&quot;</bucket>
+            </map>
+            <map to='#a0cbe8'>
+              <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769754226797:qk]&quot;</bucket>
             </map>
             <map to='#b07aa1'>
               <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:Calculation_1822767502250052:qk]&quot;</bucket>
@@ -7284,10 +7363,16 @@
             <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
           </datasources>
           <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column caption='Unresponded Share Monthly' datatype='real' name='[Calculation_1822769754226797]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM([unresponded_rate (health!monthly)] * [items_opened]) / SUM([items_opened])' />
+            </column>
+            <column caption='Items Opened' datatype='integer' name='[items_opened]' role='measure' type='quantitative' />
             <column caption='Median Merge Hours' datatype='real' name='[median_merge_hours]' role='measure' type='quantitative' />
             <column caption='Month Start' datatype='date' name='[month_start]' role='dimension' type='ordinal' />
             <column-instance column='[median_merge_hours]' derivation='Sum' name='[sum:median_merge_hours:qk]' pivot='key' type='quantitative' />
             <column-instance column='[month_start]' derivation='Month-Trunc' name='[tmn:month_start:qk]' pivot='key' type='quantitative' />
+            <column caption='Unresponded Rate (Health!Monthly)' datatype='real' name='[unresponded_rate (health!monthly)]' role='measure' type='quantitative' />
+            <column-instance column='[Calculation_1822769754226797]' derivation='User' name='[usr:Calculation_1822769754226797:qk]' pivot='key' type='quantitative' />
           </datasource-dependencies>
           <filter class='categorical' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]'>
             <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:median_merge_hours:qk]&quot;' user:op='manual' />
@@ -7301,36 +7386,40 @@
           <style-rule element='axis'>
             <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' scope='cols' value='Month' />
           </style-rule>
+          <style-rule element='cell'>
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769754226797:qk]' value='p0.00%' />
+          </style-rule>
           <style-rule element='label'>
             <format attr='text-orientation' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' value='-90' />
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769754226797:qk]' value='p0.00%' />
           </style-rule>
           <style-rule element='worksheet'>
             <format attr='display-field-labels' scope='cols' value='false' />
           </style-rule>
         </style>
         <panes>
-          <pane id='4' selection-relaxation-option='selection-relaxation-allow'>
+          <pane id='6' selection-relaxation-option='selection-relaxation-allow'>
             <view>
               <breakdown value='auto' />
             </view>
-            <mark class='Bar' />
+            <mark class='Line' />
             <mark-sizing mark-sizing-setting='marks-scaling-off' />
             <encodings>
               <color column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]' />
-              <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:median_merge_hours:qk]' />
+              <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769754226797:qk]' />
             </encodings>
             <style>
               <style-rule element='mark'>
                 <format attr='mark-labels-cull' value='true' />
-                <format attr='line-interpolation' value='linear' />
-                <format attr='mark-markers-mode' value='all' />
                 <format attr='size' value='1.637182354927063' />
                 <format attr='mark-labels-show' value='true' />
+                <format attr='line-interpolation' value='linear' />
+                <format attr='mark-markers-mode' value='all' />
               </style-rule>
             </style>
           </pane>
         </panes>
-        <rows>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:median_merge_hours:qk]</rows>
+        <rows>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769754226797:qk]</rows>
         <cols>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]</cols>
       </table>
       <simple-id uuid='{5BA6ABB6-412A-4413-94F2-1AF56C153129}' />
@@ -8580,7 +8669,7 @@
                     </zone-style>
                   </zone>
                   <zone h='26339' id='55' name='Repo Profile' w='23498' x='475' y='55495'>
-                    <layout-cache cell-count-h='6' minwidth='240' non-cell-size-h='39' type-h='cell' type-w='scalable' />
+                    <layout-cache minwidth='240' type-h='cell' type-w='scalable' />
                     <zone-style>
                       <format attr='border-color' value='#000000' />
                       <format attr='border-style' value='solid' />
@@ -8592,12 +8681,10 @@
                   </zone>
                   <zone fixed-size='144' forceUpdate='true' h='17253' id='69' is-fixed='true' type-v2='text' w='23498' x='475' y='81834'>
                     <formatted-text>
-                      <run bold='true' fontcolor='#333333' fontsize='8'>Sensitivity.</run>
-                      <run fontcolor='#333333' fontsize='8'> Rankings hold up </run>
-                      <run fontcolor='#333333' fontname='Benton Sans Book' fontsize='8'>across three preset weightings</run>
-                      <run fontcolor='#333333' fontsize='8'> (correlation 0.67 to 0.92), but tier labels don&apos;t: only 13 of 30 repositories (43%) keep the same quartile under all three. Dask, dagster and snowflake-connector-python are bottom-tier under every weighting.</run>
+                      <run bold='true' fontcolor='#000000' fontsize='8'>Sensitivity</run>
+                      <run fontcolor='#000000' fontsize='8'>. Rankings hold up across three preset weightings (correlation 0.60 to 0.88), but tier labels don&apos;t: only 9 of 30 repositories (30%) keep the same quartile under all three. Dask, snowflake-connector-python and great_expectations are bottom-tier under every weighting.</run>
                       <run>Æ&#10;</run>
-                      <run fontcolor='#555555' fontsize='8' italic='true'>Computed 10 Oct 2026. </run>
+                      <run fontcolor='#000000' fontsize='8'>Computed 11 Oct 2026.</run>
                     </formatted-text>
                     <zone-style>
                       <format attr='border-color' value='#000000' />
@@ -9157,12 +9244,10 @@
                 </zone>
                 <zone forceUpdate='true' h='5271' id='69' type-v2='text' w='95734' x='2133' y='89085'>
                   <formatted-text>
-                    <run bold='true' fontcolor='#333333' fontsize='8'>Sensitivity.</run>
-                    <run fontcolor='#333333' fontsize='8'> Rankings hold up </run>
-                    <run fontcolor='#333333' fontname='Benton Sans Book' fontsize='8'>across three preset weightings</run>
-                    <run fontcolor='#333333' fontsize='8'> (correlation 0.67 to 0.92), but tier labels don&apos;t: only 13 of 30 repositories (43%) keep the same quartile under all three. Dask, dagster and snowflake-connector-python are bottom-tier under every weighting.</run>
+                    <run bold='true' fontcolor='#000000' fontsize='8'>Sensitivity</run>
+                    <run fontcolor='#000000' fontsize='8'>. Rankings hold up across three preset weightings (correlation 0.60 to 0.88), but tier labels don&apos;t: only 9 of 30 repositories (30%) keep the same quartile under all three. Dask, snowflake-connector-python and great_expectations are bottom-tier under every weighting.</run>
                     <run>Æ&#10;</run>
-                    <run fontcolor='#555555' fontsize='8' italic='true'>Computed 10 Oct 2026. </run>
+                    <run fontcolor='#000000' fontsize='8'>Computed 11 Oct 2026.</run>
                   </formatted-text>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
@@ -9810,7 +9895,7 @@
       </viewpoint>
       <simple-id uuid='{69D1C37D-979A-4617-B614-5000BAD5213E}' />
     </window>
-    <window class='dashboard' name='Health Score Intelligence'>
+    <window class='dashboard' maximized='true' name='Health Score Intelligence'>
       <viewpoints>
         <viewpoint name='Repo Profile'>
           <zoom type='entire-view' />
@@ -9823,7 +9908,7 @@
           <zoom type='entire-view' />
         </viewpoint>
       </viewpoints>
-      <active id='71' />
+      <active id='69' />
       <simple-id uuid='{832C68BA-1C84-438F-BFAF-EA91ECA0B071}' />
     </window>
     <window class='worksheet' name='Risk Scatter'>
@@ -10127,7 +10212,7 @@
       </viewpoint>
       <simple-id uuid='{32D054BB-D589-4E87-B9C6-A8D48DA50BEE}' />
     </window>
-    <window class='worksheet' maximized='true' name='Unresponeded trend'>
+    <window class='worksheet' name='Unresponeded trend'>
       <cards>
         <edge name='left'>
           <strip size='242'>
@@ -10146,7 +10231,7 @@
         </edge>
         <edge name='right'>
           <strip size='160'>
-            <card pane-specification-id='4' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]' type='color' />
+            <card pane-specification-id='6' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]' type='color' />
           </strip>
         </edge>
       </cards>
