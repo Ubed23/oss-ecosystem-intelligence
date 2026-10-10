@@ -18,6 +18,7 @@ vars:
   response_sla_days: 7
   release_window_days: 14
   release_baseline_days: 90
+  min_retention_sample: 100
 
 models:
   oss_intel:
