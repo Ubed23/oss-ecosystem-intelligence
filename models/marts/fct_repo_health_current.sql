@@ -101,8 +101,12 @@ ranked as (
         -- score as worst.
         percent_rank() over (order by bus_factor_50 nulls first)              as bus_factor_score,
         percent_rank() over (order by distinct_pr_authors_90d)                as maintainer_activity_score,
-        percent_rank() over (order by ttfr_p50_hours desc nulls last)         as response_time_score,
-        percent_rank() over (order by unresponded_rate desc nulls last)       as unresponded_score,
+        case 
+            when ttfr_p50_hours is null then 0.5
+            else percent_rank() over (partition by (ttfr_p50_hours is null) order by ttfr_p50_hours desc) end        as response_time_score,
+        case 
+            when unresponded_rate is null then 0.5
+            else percent_rank() over (partition by (unresponded_rate is null) order by unresponded_rate desc) end      as unresponded_score,
         percent_rank() over (order by bugs_open_at_month_end desc nulls last) as bug_backlog_score,
         percent_rank() over (order by retention_m3)                           as contributor_retention_score
     from base
@@ -140,6 +144,7 @@ scored as (
 
 select
     *,
+    (items_opened_90d = 0 and prs_merged_90d = 0) as is_dormant,
     case ntile(4) over (order by health_score)
         when 1 then 'critical'
         when 2 then 'at_risk'
