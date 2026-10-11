@@ -2916,6 +2916,27 @@
       <column caption='Unresponded Share Monthly' datatype='real' name='[Calculation_1822769754226797]' role='measure' type='quantitative'>
         <calculation class='tableau' formula='SUM([unresponded_rate (health!monthly)] * [items_opened]) / SUM([items_opened])' />
       </column>
+      <column caption='Complete month' datatype='boolean' name='[Calculation_1822769915736174]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='[month_start]&lt;{ FIXED : MAX([month_start])}' />
+      </column>
+      <column caption='Retention Weighted' datatype='real' name='[Calculation_1822769925759087]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='SUM([retained_contributors])/SUM([cohort_contributors])' />
+      </column>
+      <column caption='New Contributors' datatype='integer' name='[Calculation_1822769926479984]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='SUM(IF [months_since] = 0 THEN [cohort_contributors] END)' />
+      </column>
+      <column caption='Retention 3M' datatype='real' name='[Calculation_1822769926660209]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='SUM(IF [months_since]=3 THEN [retained_contributors] END) /SUM(IF [months_since] =3 then&#13;&#10;[cohort_contributors] END)' />
+      </column>
+      <column caption='Active Contributions' datatype='real' name='[Calculation_1822769927176306]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='SUM([active_contributors (health!monthly)]) / COUNTD([month_start])' />
+      </column>
+      <column caption='New Contributors per Month' datatype='real' name='[Calculation_1822769928409203]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='[Calculation_1822769926479984] / COUNTD([cohort_month])' />
+      </column>
+      <column caption='Single Bus factor' datatype='integer' name='[Calculation_1822769930502260]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='SUM(IF [bus_factor_50] = 1 THEN 1 ELSE 0 END)' />
+      </column>
       <column aggregation='None' caption='Health Score (bin)' datatype='integer' name='[Health Score (bin)]' role='dimension' type='ordinal'>
         <calculation class='bin' decimals='1' formula='[health_score]' peg='0' size='10' />
       </column>
@@ -2974,7 +2995,7 @@
       <column caption='Median Release Gap Days' datatype='real' name='[median_release_gap_days]' role='measure' type='quantitative' />
       <column caption='Score Month' datatype='date' name='[month_start (health!score!monthly)]' role='dimension' type='ordinal' />
       <column caption='Month Start' datatype='date' name='[month_start]' role='dimension' type='ordinal' />
-      <column caption='Months Since' datatype='integer' name='[months_since]' role='measure' type='quantitative' />
+      <column aggregation='Sum' caption='Months Since' datatype='integer' name='[months_since]' role='dimension' type='ordinal' />
       <column caption='Package Name' datatype='string' name='[package_name]' role='dimension' type='nominal' />
       <column caption='Prs Merged' datatype='integer' name='[prs_merged]' role='measure' type='quantitative' />
       <column caption='Prs Merged 90D' datatype='integer' name='[prs_merged_90d]' role='measure' type='quantitative' />
@@ -3055,7 +3076,7 @@
         </groupfilter>
       </group>
       <extract count='-1' enabled='true' object-id='' units='records' user-specific='false'>
-        <connection access_mode='readonly' authentication='auth-none' author-locale='en_US' class='hyper' dbname='Data/Datasources/repos+ (oss-intel-marts).hyper' default-settings='yes' schema='Extract' sslmode='' update-time='' username='tableau_internal_user'>
+        <connection access_mode='readonly' authentication='auth-none' author-locale='en_US' class='hyper' dbname='Data/Datasources/repos+ (oss-intel-marts).hyper' default-settings='yes' schema='Extract' sslmode='' update-time='10/10/2026 07:32:21 PM' username='tableau_internal_user'>
           <relation type='collection'>
             <relation name='repos_AA67009CEC474720A59F9C68F6BC15B1' table='[Extract].[repos_AA67009CEC474720A59F9C68F6BC15B1]' type='table' />
             <relation name='cohorts_92CC2075861640B18862F03EA8553D44' table='[Extract].[cohorts_92CC2075861640B18862F03EA8553D44]' type='table' />
@@ -3141,6 +3162,9 @@
             <map key='[unresponded_score (health!score!monthly)]' value='[health!score!monthly_92F3A97A783B4282A0F105C313B42F80].[unresponded_score]' />
             <map key='[unresponded_score]' value='[health!current_051F685963D545C69C25AF349941A35D].[unresponded_score]' />
           </cols>
+          <refresh>
+            <refresh-event add-from-file-path='repos+ (oss-intel-marts)' increment-value='%null%' refresh-type='create' rows-inserted='3143' timestamp-start='2026-10-10 19:32:16.853' />
+          </refresh>
           <metadata-records>
             <metadata-record class='column'>
               <remote-name>repo_id</remote-name>
@@ -4225,8 +4249,14 @@
             </map>
           </encoding>
           <encoding attr='color' field='[:Measure Names]' palette='tableau20_10_0' type='palette'>
+            <map to='#0055ff'>
+              <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:items_opened:qk]&quot;</bucket>
+            </map>
             <map to='#0072b2'>
               <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:Calculation_1822769629802579:qk]&quot;</bucket>
+            </map>
+            <map to='#00aaff'>
+              <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:ttfr_p50_hours (health!monthly):qk]&quot;</bucket>
             </map>
             <map to='#4e79a7'>
               <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:Calculation_1822767502602312:qk]&quot;</bucket>
@@ -4236,9 +4266,6 @@
             </map>
             <map to='#4e79a7'>
               <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:median_merge_hours:qk]&quot;</bucket>
-            </map>
-            <map to='#4e79a7'>
-              <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:ttfr_p50_hours (health!monthly):qk]&quot;</bucket>
             </map>
             <map to='#4e79a7'>
               <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:median_merge_hours:qk]&quot;</bucket>
@@ -4268,10 +4295,10 @@
               <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:Calculation_1822767502438470:qk]&quot;</bucket>
             </map>
             <map to='#a0cbe8'>
-              <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:items_opened:qk]&quot;</bucket>
-            </map>
-            <map to='#a0cbe8'>
               <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769754226797:qk]&quot;</bucket>
+            </map>
+            <map to='#aa0000'>
+              <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:ttfr_p90_hours (health!monthly):qk]&quot;</bucket>
             </map>
             <map to='#b07aa1'>
               <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:Calculation_1822767502250052:qk]&quot;</bucket>
@@ -4295,16 +4322,13 @@
               <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:Calculation_1822769630535767:qk]&quot;</bucket>
             </map>
             <map to='#f28e2b'>
-              <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:ttfr_p90_hours (health!monthly):qk]&quot;</bucket>
-            </map>
-            <map to='#f28e2b'>
               <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:ttfr_p90_hours (health!monthly):qk]&quot;</bucket>
+            </map>
+            <map to='#ff007f'>
+              <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:prs_merged:qk]&quot;</bucket>
             </map>
             <map to='#ff9da7'>
               <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:Calculation_1822767502323781:qk]&quot;</bucket>
-            </map>
-            <map to='#ffbe7d'>
-              <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:prs_merged:qk]&quot;</bucket>
             </map>
           </encoding>
           <encoding attr='color' field='[usr:Calculation_1822766934011940:nk]' type='palette'>
@@ -4884,6 +4908,110 @@
         <cols />
       </table>
       <simple-id uuid='{8A22A5C3-D41E-441A-A221-8C167FFDB36C}' />
+    </worksheet>
+    <worksheet name='Cohort Heatmap'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
+          </datasources>
+          <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column caption='Retention Weighted' datatype='real' name='[Calculation_1822769925759087]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM([retained_contributors])/SUM([cohort_contributors])' />
+            </column>
+            <column caption='Cohort Contributors' datatype='integer' name='[cohort_contributors]' role='measure' type='quantitative' />
+            <column caption='Cohort Month' datatype='date' name='[cohort_month]' role='dimension' type='ordinal' />
+            <column aggregation='Sum' caption='Months Since' datatype='integer' name='[months_since]' role='dimension' type='ordinal' />
+            <column-instance column='[months_since]' derivation='None' name='[none:months_since:ok]' pivot='key' type='ordinal' />
+            <column caption='Retained Contributors' datatype='integer' name='[retained_contributors]' role='measure' type='quantitative' />
+            <column-instance column='[cohort_contributors]' derivation='Sum' name='[sum:cohort_contributors:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[cohort_month]' derivation='Month-Trunc' name='[tmn:cohort_month:ok]' pivot='key' type='ordinal' />
+            <column-instance column='[Calculation_1822769925759087]' derivation='User' name='[usr:Calculation_1822769925759087:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:months_since:ok]'>
+            <groupfilter function='union' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate'>
+              <groupfilter function='member' level='[none:months_since:ok]' member='1' />
+              <groupfilter function='member' level='[none:months_since:ok]' member='2' />
+              <groupfilter function='member' level='[none:months_since:ok]' member='3' />
+              <groupfilter function='member' level='[none:months_since:ok]' member='4' />
+              <groupfilter function='member' level='[none:months_since:ok]' member='5' />
+              <groupfilter function='member' level='[none:months_since:ok]' member='6' />
+            </groupfilter>
+          </filter>
+          <slices>
+            <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:months_since:ok]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='cell'>
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769925759087:qk]' value='p0.0%' />
+          </style-rule>
+          <style-rule element='label'>
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769925759087:qk]' value='p0%' />
+          </style-rule>
+          <style-rule element='mark'>
+            <encoding attr='color' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769925759087:qk]' max='0.21' min='0.0' symmetric='false' type='custom-interpolated'>
+              <color-palette custom='true' name='' type='ordered-diverging'>
+                <color>#00b3ff</color>
+                <color>#29baf8</color>
+                <color>#50c2f2</color>
+                <color>#76c8ec</color>
+                <color>#99cee5</color>
+                <color>#bad4df</color>
+                <color>#d9d9d9</color>
+                <color>#a2b8c3</color>
+                <color>#739aad</color>
+                <color>#4b7f97</color>
+                <color>#2a6581</color>
+                <color>#114e6b</color>
+                <color>#003a55</color>
+              </color-palette>
+            </encoding>
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Square' />
+            <encodings>
+              <color column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769925759087:qk]' />
+              <tooltip column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:cohort_contributors:qk]' />
+              <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769925759087:qk]' />
+            </encodings>
+            <customized-tooltip>
+              <formatted-text>
+                <run fontcolor='#757575'>Months Since:&#9;</run>
+                <run bold='true'><![CDATA[<[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:months_since:ok]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#757575'>Month of Cohort Month:&#9;</run>
+                <run bold='true'><![CDATA[<[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:cohort_month:ok]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#757575'>Cohort Size:&#9;</run>
+                <run bold='true'><![CDATA[<[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:cohort_contributors:qk]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#757575'>Retention Weighted:&#9;</run>
+                <run bold='true'><![CDATA[<[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769925759087:qk]>]]></run>
+              </formatted-text>
+            </customized-tooltip>
+            <style>
+              <style-rule element='cell'>
+                <format attr='text-align' value='center' />
+                <format attr='vertical-align' value='auto' />
+              </style-rule>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:cohort_month:ok]</rows>
+        <cols>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:months_since:ok]</cols>
+      </table>
+      <simple-id uuid='{9CD29CBD-E7A2-47E5-8579-072948A46DEF}' />
     </worksheet>
     <worksheet name='Component Heatmap'>
       <table>
@@ -5978,26 +6106,33 @@
             <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
           </datasources>
           <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column caption='Complete month' datatype='boolean' name='[Calculation_1822769915736174]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[month_start]&lt;{ FIXED : MAX([month_start])}' />
+            </column>
             <column-instance column='[median_merge_hours]' derivation='Median' name='[med:median_merge_hours:qk]' pivot='key' type='quantitative' />
             <column caption='Median Merge Hours' datatype='real' name='[median_merge_hours]' role='measure' type='quantitative' />
-            <column-instance column='[month_start]' derivation='Month' name='[mn:month_start:ok]' pivot='key' type='ordinal' />
             <column caption='Month Start' datatype='date' name='[month_start]' role='dimension' type='ordinal' />
-            <column-instance column='[median_merge_hours]' derivation='Sum' name='[sum:median_merge_hours:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_1822769915736174]' derivation='None' name='[none:Calculation_1822769915736174:nk]' pivot='key' type='nominal' />
+            <column-instance column='[month_start]' derivation='Month-Trunc' name='[tmn:month_start:ok]' pivot='key' type='ordinal' />
           </datasource-dependencies>
-          <filter class='categorical' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]'>
-            <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:median_merge_hours:qk]&quot;' user:op='manual' />
+          <filter class='categorical' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:Calculation_1822769915736174:nk]' filter-group='5'>
+            <groupfilter function='member' level='[none:Calculation_1822769915736174:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
           </filter>
           <slices>
-            <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]</column>
+            <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:Calculation_1822769915736174:nk]</column>
           </slices>
           <aggregation value='true' />
         </view>
         <style>
           <style-rule element='axis'>
-            <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[mn:month_start:ok]' scope='cols' value='Month' />
+            <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:median_merge_hours:qk]' scope='rows' value='Median hours to merge a PR' />
+          </style-rule>
+          <style-rule element='cell'>
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:median_merge_hours:qk]' value='n#,##0.0;-#,##0.0' />
           </style-rule>
           <style-rule element='label'>
-            <format attr='text-orientation' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[mn:month_start:ok]' value='-90' />
+            <format attr='text-orientation' scope='cols' value='-90' />
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:ok]' value='*mmm -yy' />
           </style-rule>
           <style-rule element='worksheet'>
             <format attr='display-field-labels' scope='cols' value='false' />
@@ -6011,22 +6146,23 @@
             <mark class='Bar' />
             <mark-sizing mark-sizing-setting='marks-scaling-off' />
             <encodings>
-              <color column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]' />
               <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:median_merge_hours:qk]' />
+              <lod column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]' />
             </encodings>
             <style>
               <style-rule element='mark'>
                 <format attr='mark-labels-cull' value='true' />
-                <format attr='line-interpolation' value='linear' />
-                <format attr='mark-markers-mode' value='all' />
                 <format attr='size' value='1.637182354927063' />
                 <format attr='mark-labels-show' value='true' />
+                <format attr='line-interpolation' value='linear' />
+                <format attr='mark-markers-mode' value='all' />
+                <format attr='mark-color' value='#055af8' />
               </style-rule>
             </style>
           </pane>
         </panes>
         <rows>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:median_merge_hours:qk]</rows>
-        <cols>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[mn:month_start:ok]</cols>
+        <cols>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:ok]</cols>
       </table>
       <simple-id uuid='{0D9B557C-E959-49E4-8C47-BF57BC5F318F}' />
     </worksheet>
@@ -6037,8 +6173,12 @@
             <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
           </datasources>
           <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column caption='Complete month' datatype='boolean' name='[Calculation_1822769915736174]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[month_start]&lt;{ FIXED : MAX([month_start])}' />
+            </column>
             <column caption='Items Opened' datatype='integer' name='[items_opened]' role='measure' type='quantitative' />
             <column caption='Month Start' datatype='date' name='[month_start]' role='dimension' type='ordinal' />
+            <column-instance column='[Calculation_1822769915736174]' derivation='None' name='[none:Calculation_1822769915736174:nk]' pivot='key' type='nominal' />
             <column caption='Prs Merged' datatype='integer' name='[prs_merged]' role='measure' type='quantitative' />
             <column-instance column='[items_opened]' derivation='Sum' name='[sum:items_opened:qk]' pivot='key' type='quantitative' />
             <column-instance column='[prs_merged]' derivation='Sum' name='[sum:prs_merged:qk]' pivot='key' type='quantitative' />
@@ -6050,8 +6190,12 @@
               <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:prs_merged:qk]&quot;' />
             </groupfilter>
           </filter>
+          <filter class='categorical' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:Calculation_1822769915736174:nk]' filter-group='5'>
+            <groupfilter function='member' level='[none:Calculation_1822769915736174:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
           <slices>
             <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]</column>
+            <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:Calculation_1822769915736174:nk]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -6065,6 +6209,22 @@
           <style-rule element='label'>
             <format attr='text-orientation' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' value='-90' />
             <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' value='*mmm - yy' />
+          </style-rule>
+          <style-rule element='dropline'>
+            <format attr='stroke-size' value='0' />
+            <format attr='line-visibility' value='off' />
+          </style-rule>
+          <style-rule element='refline'>
+            <format attr='stroke-size' value='0' />
+            <format attr='line-visibility' value='off' />
+          </style-rule>
+          <style-rule element='gridline'>
+            <format attr='stroke-size' scope='rows' value='0' />
+            <format attr='line-visibility' scope='rows' value='off' />
+          </style-rule>
+          <style-rule element='zeroline'>
+            <format attr='stroke-size' value='0' />
+            <format attr='line-visibility' value='off' />
           </style-rule>
         </style>
         <panes>
@@ -6097,9 +6257,13 @@
               <style-rule element='mark'>
                 <format attr='mark-labels-show' value='true' />
                 <format attr='mark-labels-cull' value='true' />
+                <format attr='size' value='1.087458610534668' />
                 <format attr='line-interpolation' value='linear' />
                 <format attr='mark-markers-mode' value='all' />
-                <format attr='size' value='1.087458610534668' />
+              </style-rule>
+              <style-rule element='trendline'>
+                <format attr='stroke-size' value='0' />
+                <format attr='line-visibility' value='off' />
               </style-rule>
             </style>
           </pane>
@@ -6117,9 +6281,13 @@
               <style-rule element='mark'>
                 <format attr='mark-labels-show' value='true' />
                 <format attr='mark-labels-cull' value='true' />
+                <format attr='size' value='1.087458610534668' />
                 <format attr='line-interpolation' value='linear' />
                 <format attr='mark-markers-mode' value='all' />
-                <format attr='size' value='1.087458610534668' />
+              </style-rule>
+              <style-rule element='trendline'>
+                <format attr='stroke-size' value='0' />
+                <format attr='line-visibility' value='off' />
               </style-rule>
             </style>
           </pane>
@@ -6446,9 +6614,13 @@
             <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
           </datasources>
           <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column caption='Complete month' datatype='boolean' name='[Calculation_1822769915736174]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[month_start]&lt;{ FIXED : MAX([month_start])}' />
+            </column>
             <column-instance column='[ttfr_p50_hours (health!monthly)]' derivation='Median' name='[med:ttfr_p50_hours (health!monthly):qk]' pivot='key' type='quantitative' />
             <column-instance column='[ttfr_p90_hours (health!monthly)]' derivation='Median' name='[med:ttfr_p90_hours (health!monthly):qk]' pivot='key' type='quantitative' />
             <column caption='Month Start' datatype='date' name='[month_start]' role='dimension' type='ordinal' />
+            <column-instance column='[Calculation_1822769915736174]' derivation='None' name='[none:Calculation_1822769915736174:nk]' pivot='key' type='nominal' />
             <column-instance column='[ttfr_p50_hours (health!monthly)]' derivation='Sum' name='[sum:ttfr_p50_hours (health!monthly):qk]' pivot='key' type='quantitative' />
             <column-instance column='[ttfr_p90_hours (health!monthly)]' derivation='Sum' name='[sum:ttfr_p90_hours (health!monthly):qk]' pivot='key' type='quantitative' />
             <column-instance column='[month_start]' derivation='Month-Trunc' name='[tmn:month_start:qk]' pivot='key' type='quantitative' />
@@ -6461,8 +6633,12 @@
               <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:ttfr_p90_hours (health!monthly):qk]&quot;' />
             </groupfilter>
           </filter>
+          <filter class='categorical' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:Calculation_1822769915736174:nk]' filter-group='5'>
+            <groupfilter function='member' level='[none:Calculation_1822769915736174:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
           <slices>
             <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]</column>
+            <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:Calculation_1822769915736174:nk]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -6473,6 +6649,10 @@
             <encoding attr='space' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:ttfr_p50_hours (health!monthly):qk]' field-type='quantitative' scale='log' scope='rows' type='space' />
             <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:ttfr_p50_hours (health!monthly):qk]' scope='rows' value='Response Time (hrs)' />
             <format attr='display' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:ttfr_p90_hours (health!monthly):qk]' scope='rows' value='false' />
+          </style-rule>
+          <style-rule element='cell'>
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:ttfr_p50_hours (health!monthly):qk]' value='n#,##0.0;-#,##0.0' />
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:ttfr_p90_hours (health!monthly):qk]' value='n#,##0.0;-#,##0.0' />
           </style-rule>
           <style-rule element='label'>
             <format attr='text-orientation' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' value='-90' />
@@ -6492,10 +6672,10 @@
             <style>
               <style-rule element='mark'>
                 <format attr='mark-labels-cull' value='true' />
-                <format attr='line-interpolation' value='linear' />
-                <format attr='mark-markers-mode' value='all' />
                 <format attr='size' value='1.087458610534668' />
                 <format attr='mark-labels-show' value='false' />
+                <format attr='line-interpolation' value='linear' />
+                <format attr='mark-markers-mode' value='all' />
               </style-rule>
             </style>
           </pane>
@@ -6512,10 +6692,10 @@
             <style>
               <style-rule element='mark'>
                 <format attr='mark-labels-cull' value='true' />
-                <format attr='line-interpolation' value='linear' />
-                <format attr='mark-markers-mode' value='all' />
                 <format attr='size' value='1.087458610534668' />
                 <format attr='mark-labels-show' value='true' />
+                <format attr='line-interpolation' value='linear' />
+                <format attr='mark-markers-mode' value='all' />
               </style-rule>
             </style>
           </pane>
@@ -6532,10 +6712,10 @@
             <style>
               <style-rule element='mark'>
                 <format attr='mark-labels-cull' value='true' />
-                <format attr='line-interpolation' value='linear' />
-                <format attr='mark-markers-mode' value='all' />
                 <format attr='size' value='1.087458610534668' />
                 <format attr='mark-labels-show' value='true' />
+                <format attr='line-interpolation' value='linear' />
+                <format attr='mark-markers-mode' value='all' />
               </style-rule>
             </style>
           </pane>
@@ -7302,6 +7482,326 @@
       </table>
       <simple-id uuid='{8AED400B-0584-4A3E-8A71-205110580BC0}' />
     </worksheet>
+    <worksheet name='Tile New'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
+          </datasources>
+          <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column caption='New Contributors' datatype='integer' name='[Calculation_1822769926479984]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM(IF [months_since] = 0 THEN [cohort_contributors] END)' />
+            </column>
+            <column caption='New Contributors per Month' datatype='real' name='[Calculation_1822769928409203]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='[Calculation_1822769926479984] / COUNTD([cohort_month])' />
+            </column>
+            <column caption='Cohort Contributors' datatype='integer' name='[cohort_contributors]' role='measure' type='quantitative' />
+            <column caption='Cohort Month' datatype='date' name='[cohort_month]' role='dimension' type='ordinal' />
+            <column aggregation='Sum' caption='Months Since' datatype='integer' name='[months_since]' role='dimension' type='ordinal' />
+            <column-instance column='[Calculation_1822769928409203]' derivation='User' name='[usr:Calculation_1822769928409203:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769928409203:qk]' />
+            </encodings>
+            <customized-label>
+              <formatted-text>
+                <run bold='true' fontname='Tableau Bold' fontsize='18'><![CDATA[<[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769928409203:qk]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontname='Tableau Bold' fontsize='10'>Active Contributions per Month</run>
+                <run>Æ&#10;</run>
+              </formatted-text>
+            </customized-label>
+            <style>
+              <style-rule element='cell'>
+                <format attr='text-align' value='center' />
+                <format attr='wrap' value='on' />
+              </style-rule>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+      <simple-id uuid='{5EFFFBD1-20EA-470E-8567-9C3C76D8739D}' />
+    </worksheet>
+    <worksheet name='Tile Retention'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
+          </datasources>
+          <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column caption='Retention 3M' datatype='real' name='[Calculation_1822769926660209]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM(IF [months_since]=3 THEN [retained_contributors] END) /SUM(IF [months_since] =3 then&#13;&#10;[cohort_contributors] END)' />
+            </column>
+            <column caption='Cohort Contributors' datatype='integer' name='[cohort_contributors]' role='measure' type='quantitative' />
+            <column aggregation='Sum' caption='Months Since' datatype='integer' name='[months_since]' role='dimension' type='ordinal' />
+            <column caption='Retained Contributors' datatype='integer' name='[retained_contributors]' role='measure' type='quantitative' />
+            <column-instance column='[Calculation_1822769926660209]' derivation='User' name='[usr:Calculation_1822769926660209:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='cell'>
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769926660209:qk]' value='p0.0%' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769926660209:qk]' />
+            </encodings>
+            <customized-label>
+              <formatted-text>
+                <run bold='true' fontname='Tableau Bold' fontsize='18'><![CDATA[<[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769926660209:qk]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontname='Tableau Bold' fontsize='10'>3-Month Retention</run>
+                <run>Æ&#10;</run>
+              </formatted-text>
+            </customized-label>
+            <style>
+              <style-rule element='cell'>
+                <format attr='text-align' value='center' />
+                <format attr='wrap' value='on' />
+              </style-rule>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+      <simple-id uuid='{4D48643D-0992-45EE-96AF-9CC45106F654}' />
+    </worksheet>
+    <worksheet name='Tile Single'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
+          </datasources>
+          <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column caption='Single Bus factor' datatype='integer' name='[Calculation_1822769930502260]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM(IF [bus_factor_50] = 1 THEN 1 ELSE 0 END)' />
+            </column>
+            <column caption='Bus Factor 50' datatype='integer' name='[bus_factor_50]' role='measure' type='quantitative' />
+            <column-instance column='[Calculation_1822769930502260]' derivation='User' name='[usr:Calculation_1822769930502260:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='cell'>
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769930502260:qk]' value='n#,##0;-#,##0' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769930502260:qk]' />
+            </encodings>
+            <customized-label>
+              <formatted-text>
+                <run bold='true' fontname='Tableau Bold' fontsize='18'><![CDATA[<[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769930502260:qk]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontname='Tableau Bold' fontsize='10'>Repos with Bus Factor 1</run>
+                <run>Æ&#10;</run>
+              </formatted-text>
+            </customized-label>
+            <style>
+              <style-rule element='cell'>
+                <format attr='text-align' value='center' />
+                <format attr='wrap' value='on' />
+              </style-rule>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+      <simple-id uuid='{B19A873B-0290-422C-A9D2-04F88528E02A}' />
+    </worksheet>
+    <worksheet name='Tile Top Author share'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
+          </datasources>
+          <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column-instance column='[top_author_share]' derivation='Median' name='[med:top_author_share:qk]' pivot='key' type='quantitative' />
+            <column caption='Top Author Share' datatype='real' name='[top_author_share]' role='measure' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='cell'>
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:top_author_share:qk]' value='p0.0%' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:top_author_share:qk]' />
+            </encodings>
+            <customized-label>
+              <formatted-text>
+                <run bold='true' fontname='Tableau Bold' fontsize='18'><![CDATA[<[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:top_author_share:qk]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontname='Tableau Bold' fontsize='10'>Top Author Share</run>
+                <run>Æ&#10;</run>
+              </formatted-text>
+            </customized-label>
+            <style>
+              <style-rule element='cell'>
+                <format attr='text-align' value='center' />
+                <format attr='wrap' value='on' />
+              </style-rule>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+      <simple-id uuid='{4E20CB55-9526-4D25-B933-11D8C83F1A9D}' />
+    </worksheet>
+    <worksheet name='Tile active'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
+          </datasources>
+          <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column caption='Active Contributions' datatype='real' name='[Calculation_1822769927176306]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM([active_contributors (health!monthly)]) / COUNTD([month_start])' />
+            </column>
+            <column caption='Active Contributors (Health!Monthly)' datatype='integer' name='[active_contributors (health!monthly)]' role='measure' type='quantitative' />
+            <column caption='Month Start' datatype='date' name='[month_start]' role='dimension' type='ordinal' />
+            <column-instance column='[Calculation_1822769927176306]' derivation='User' name='[usr:Calculation_1822769927176306:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769927176306:qk]' />
+            </encodings>
+            <customized-label>
+              <formatted-text>
+                <run bold='true' fontname='Tableau Bold' fontsize='18'><![CDATA[<[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769927176306:qk]>]]></run>
+                <run fontname='Tableau Bold'>Æ&#10;</run>
+                <run fontname='Tableau Bold' fontsize='10'>Active Contributions per Month</run>
+              </formatted-text>
+            </customized-label>
+            <style>
+              <style-rule element='cell'>
+                <format attr='text-align' value='center' />
+                <format attr='wrap' value='on' />
+              </style-rule>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+      <simple-id uuid='{94D927CC-430A-4204-8C64-FD00EF76FAF2}' />
+    </worksheet>
+    <worksheet name='Tile bus'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
+          </datasources>
+          <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column caption='Bus Factor 50' datatype='integer' name='[bus_factor_50]' role='measure' type='quantitative' />
+            <column-instance column='[bus_factor_50]' derivation='Median' name='[med:bus_factor_50:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='cell'>
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:bus_factor_50:qk]' value='n#,##0.0;-#,##0.0' />
+          </style-rule>
+          <style-rule element='label'>
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:bus_factor_50:qk]' value='n#,##0;-#,##0' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:bus_factor_50:qk]' />
+            </encodings>
+            <customized-label>
+              <formatted-text>
+                <run bold='true' fontname='Tableau Bold' fontsize='18'><![CDATA[<[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:bus_factor_50:qk]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontname='Tableau Bold' fontsize='10'>Bus Factor</run>
+                <run>Æ&#10;</run>
+              </formatted-text>
+            </customized-label>
+            <style>
+              <style-rule element='cell'>
+                <format attr='text-align' value='center' />
+                <format attr='wrap' value='on' />
+              </style-rule>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+      <simple-id uuid='{BC8335C6-F405-4333-98A7-D1C108A7E119}' />
+    </worksheet>
     <worksheet name='Unresponded Share'>
       <table>
         <view>
@@ -7356,7 +7856,7 @@
       </table>
       <simple-id uuid='{ED0BEEB6-2925-4068-A120-EA37C492211D}' />
     </worksheet>
-    <worksheet name='Unresponeded trend'>
+    <worksheet name='Unresponded trend'>
       <table>
         <view>
           <datasources>
@@ -7366,32 +7866,37 @@
             <column caption='Unresponded Share Monthly' datatype='real' name='[Calculation_1822769754226797]' role='measure' type='quantitative'>
               <calculation class='tableau' formula='SUM([unresponded_rate (health!monthly)] * [items_opened]) / SUM([items_opened])' />
             </column>
+            <column caption='Complete month' datatype='boolean' name='[Calculation_1822769915736174]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[month_start]&lt;{ FIXED : MAX([month_start])}' />
+            </column>
             <column caption='Items Opened' datatype='integer' name='[items_opened]' role='measure' type='quantitative' />
-            <column caption='Median Merge Hours' datatype='real' name='[median_merge_hours]' role='measure' type='quantitative' />
             <column caption='Month Start' datatype='date' name='[month_start]' role='dimension' type='ordinal' />
-            <column-instance column='[median_merge_hours]' derivation='Sum' name='[sum:median_merge_hours:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_1822769915736174]' derivation='None' name='[none:Calculation_1822769915736174:nk]' pivot='key' type='nominal' />
             <column-instance column='[month_start]' derivation='Month-Trunc' name='[tmn:month_start:qk]' pivot='key' type='quantitative' />
             <column caption='Unresponded Rate (Health!Monthly)' datatype='real' name='[unresponded_rate (health!monthly)]' role='measure' type='quantitative' />
             <column-instance column='[Calculation_1822769754226797]' derivation='User' name='[usr:Calculation_1822769754226797:qk]' pivot='key' type='quantitative' />
           </datasource-dependencies>
-          <filter class='categorical' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]'>
-            <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:median_merge_hours:qk]&quot;' user:op='manual' />
+          <filter class='categorical' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:Calculation_1822769915736174:nk]' filter-group='5'>
+            <groupfilter function='member' level='[none:Calculation_1822769915736174:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
           </filter>
           <slices>
-            <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]</column>
+            <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:Calculation_1822769915736174:nk]</column>
           </slices>
           <aggregation value='true' />
         </view>
         <style>
           <style-rule element='axis'>
             <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' scope='cols' value='Month' />
+            <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769754226797:qk]' scope='rows' value='Share of new items with no response' />
           </style-rule>
           <style-rule element='cell'>
-            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769754226797:qk]' value='p0.00%' />
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' value='*mmm - yy' />
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769754226797:qk]' value='p0%' />
           </style-rule>
           <style-rule element='label'>
             <format attr='text-orientation' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' value='-90' />
-            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769754226797:qk]' value='p0.00%' />
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' value='*mmm - yy' />
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769754226797:qk]' value='p0%' />
           </style-rule>
           <style-rule element='worksheet'>
             <format attr='display-field-labels' scope='cols' value='false' />
@@ -7405,7 +7910,6 @@
             <mark class='Line' />
             <mark-sizing mark-sizing-setting='marks-scaling-off' />
             <encodings>
-              <color column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]' />
               <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769754226797:qk]' />
             </encodings>
             <style>
@@ -7415,6 +7919,7 @@
                 <format attr='mark-labels-show' value='true' />
                 <format attr='line-interpolation' value='linear' />
                 <format attr='mark-markers-mode' value='all' />
+                <format attr='mark-color' value='#9a78ff' />
               </style-rule>
             </style>
           </pane>
@@ -8340,11 +8845,11 @@
       </zones>
       <devicelayouts>
         <devicelayout auto-generated='true' name='Phone'>
-          <size maxheight='4050' minheight='4050' sizing-mode='vscroll' />
+          <size maxheight='4100' minheight='4100' sizing-mode='vscroll' />
           <zones>
-            <zone h='100000' id='60' type-v2='layout-basic' w='100000' x='0' y='0'>
-              <zone h='98184' id='59' param='vert' type-v2='layout-flow' w='99012' x='494' y='908'>
-                <zone alt-text='GitGub' fixed-size='280' forceUpdate='true' h='7733' id='35' image-file-url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' is-centered='0' is-fixed='true' is-scaled='1' type-v2='bitmap' url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' w='4206' x='247' y='454'>
+            <zone h='100000' id='63' type-v2='layout-basic' w='100000' x='0' y='0'>
+              <zone h='98184' id='62' param='vert' type-v2='layout-flow' w='99040' x='480' y='908'>
+                <zone alt-text='GitGub' fixed-size='269' forceUpdate='true' h='6810' id='35' image-file-url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' is-centered='0' is-fixed='true' is-scaled='1' type-v2='bitmap' url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' w='4197' x='240' y='454'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='none' />
@@ -8353,7 +8858,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone forceUpdate='true' h='7733' id='11' type-v2='text' w='80477' x='4453' y='454'>
+                <zone forceUpdate='true' h='6810' id='11' type-v2='text' w='80489' x='4437' y='454'>
                   <formatted-text>
                     <run bold='true' fontcolor='#ffffff' fontname='Tableau Bold' fontsize='22'> Executive Overview    </run>
                   </formatted-text>
@@ -8367,7 +8872,7 @@
                     <format attr='background-color' value='#16314d' />
                   </zone-style>
                 </zone>
-                <zone h='7733' id='58' type-v2='dashboard-object' w='5020' x='84930' y='454'>
+                <zone h='6810' id='58' type-v2='dashboard-object' w='5018' x='84926' y='454'>
                   <button action='' button-click-action-metadata='powerpoint'>
                     <export-button-action>tabdoc:abstract-dashboard-button-export-wrapper dashboard-button-export-type=&quot;powerpoint&quot; dashboarddoc-id=&quot;{5F2A5C29-7293-4687-B423-800944B8EA74}&quot;</export-button-action>
                     <button-visual-state>
@@ -8387,7 +8892,7 @@
                     <format attr='background-color' value='#e0f9ff' />
                   </zone-style>
                 </zone>
-                <zone h='7733' id='57' type-v2='dashboard-object' w='9803' x='89950' y='454'>
+                <zone h='6810' id='57' type-v2='dashboard-object' w='9816' x='89944' y='454'>
                   <button action='tabdoc:goto-sheet window-id=&quot;{832C68BA-1C84-438F-BFAF-EA91ECA0B071}&quot;' button-type='text'>
                     <button-visual-state>
                       <caption>Next</caption>
@@ -8404,7 +8909,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='12177' id='3' is-fixed='true' name='Repository Count' show-title='false' w='17600' x='247' y='8187'>
+                <zone fixed-size='280' h='13093' id='3' is-fixed='true' name='Repository Count' show-title='false' w='17592' x='240' y='7264'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='solid' />
@@ -8414,7 +8919,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='12177' id='7' is-fixed='true' name='Avg Health Score' show-title='false' w='16982' x='17847' y='8187'>
+                <zone fixed-size='280' h='13093' id='7' is-fixed='true' name='Avg Health Score' show-title='false' w='16985' x='17832' y='7264'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='solid' />
@@ -8424,7 +8929,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='12177' id='9' is-fixed='true' name='Healthy repositories' show-title='false' w='15836' x='34829' y='8187'>
+                <zone fixed-size='280' h='13093' id='9' is-fixed='true' name='Healthy repositories' show-title='false' w='15841' x='34817' y='7264'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='solid' />
@@ -8434,7 +8939,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='12177' id='33' is-fixed='true' name='Critical Repositories' show-title='false' w='16041' x='50665' y='8187'>
+                <zone fixed-size='280' h='13093' id='33' is-fixed='true' name='Critical Repositories' show-title='false' w='16042' x='50658' y='7264'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='solid' />
@@ -8444,7 +8949,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='12177' id='32' is-fixed='true' name='At risk Repositories' show-title='false' w='15566' x='66706' y='8187'>
+                <zone fixed-size='280' h='13093' id='32' is-fixed='true' name='At risk Repositories' show-title='false' w='15567' x='66700' y='7264'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='solid' />
@@ -8454,7 +8959,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='12177' id='34' is-fixed='true' name='Risk repository %' show-title='false' w='17481' x='82272' y='8187'>
+                <zone fixed-size='280' h='13093' id='34' is-fixed='true' name='Risk repository %' show-title='false' w='17493' x='82267' y='7264'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='solid' />
@@ -8473,7 +8978,19 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='36049' id='12' is-fixed='true' name='Health Score Distribution' w='27967' x='247' y='20364'>
+                <zone forceUpdate='true' h='3405' id='61' type-v2='text' w='8883' x='22332' y='14415'>
+                  <formatted-text>
+                    <run fontalignment='1' fontcolor='#000000' fontname='Tableau Bold' fontsize='10'>Avg Health Score </run>
+                  </formatted-text>
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='280' h='36052' id='12' is-fixed='true' name='Health Score Distribution' w='27962' x='240' y='20357'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='solid' />
@@ -8492,7 +9009,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='36049' id='25' is-fixed='true' name='Risk Quadrant' w='31126' x='28214' y='20364'>
+                <zone fixed-size='280' h='36052' id='25' is-fixed='true' name='Risk Quadrant' w='31128' x='28202' y='20357'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='solid' />
@@ -8511,7 +9028,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='36049' id='26' is-fixed='true' name='Ecosystem Overview' w='40413' x='59340' y='20364'>
+                <zone fixed-size='280' h='36052' id='26' is-fixed='true' name='Ecosystem Overview' w='40430' x='59330' y='20357'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='solid' />
@@ -8521,7 +9038,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='43133' id='31' is-fixed='true' name='Score Trend' w='31171' x='247' y='56413'>
+                <zone fixed-size='280' h='43137' id='31' is-fixed='true' name='Score Trend' w='31165' x='240' y='56409'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='solid' />
@@ -8531,7 +9048,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='43133' id='36' is-fixed='true' name='Watchlist' w='52210' x='31418' y='56413'>
+                <zone fixed-size='280' h='43137' id='36' is-fixed='true' name='Watchlist' w='52218' x='31405' y='56409'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='solid' />
@@ -8541,7 +9058,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone forceUpdate='true' h='43133' id='46' type-v2='text' w='16125' x='83628' y='56413'>
+                <zone forceUpdate='true' h='43137' id='46' type-v2='text' w='16137' x='83623' y='56409'>
                   <formatted-text>
                     <run bold='true' fontcolor='#000000' fontname='Tableau Bold' fontsize='12'>Key insights</run>
                     <run>Æ&#10;&#10;</run>
@@ -8669,7 +9186,7 @@
                     </zone-style>
                   </zone>
                   <zone h='26339' id='55' name='Repo Profile' w='23498' x='475' y='55495'>
-                    <layout-cache minwidth='240' type-h='cell' type-w='scalable' />
+                    <layout-cache cell-count-h='6' minwidth='240' non-cell-size-h='39' type-h='cell' type-w='scalable' />
                     <zone-style>
                       <format attr='border-color' value='#000000' />
                       <format attr='border-style' value='solid' />
@@ -8975,11 +9492,11 @@
       </zones>
       <devicelayouts>
         <devicelayout auto-generated='true' name='Phone'>
-          <size maxheight='2150' minheight='2150' sizing-mode='vscroll' />
+          <size maxheight='2400' minheight='2400' sizing-mode='vscroll' />
           <zones>
-            <zone h='100000' id='76' type-v2='layout-basic' w='100000' x='0' y='0'>
-              <zone h='99256' id='75' param='vert' type-v2='layout-flow' w='95734' x='2133' y='372'>
-                <zone alt-text='GitGub' fixed-size='41' h='2279' id='66' image-file-url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' is-fixed='true' is-scaled='1' type-v2='bitmap' url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' w='95734' x='2133' y='372'>
+            <zone h='100000' id='80' type-v2='layout-basic' w='100000' x='0' y='0'>
+              <zone h='98184' id='79' param='vert' type-v2='layout-flow' w='99050' x='475' y='908'>
+                <zone alt-text='GitGub' fixed-size='47' h='6807' id='66' image-file-url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' is-fixed='true' is-scaled='1' type-v2='bitmap' url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' w='3760' x='475' y='908'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='none' />
@@ -8988,7 +9505,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone forceUpdate='true' h='5023' id='32' type-v2='text' w='95734' x='2133' y='2651'>
+                <zone forceUpdate='true' h='6807' id='32' type-v2='text' w='74876' x='4235' y='908'>
                   <formatted-text>
                     <run bold='true' fontalignment='1' fontcolor='#ffffff' fontname='Tableau Bold' fontsize='22'>Health Score Intelligence</run>
                   </formatted-text>
@@ -9002,9 +9519,9 @@
                     <format attr='background-color' value='#16314d' />
                   </zone-style>
                 </zone>
-                <zone h='5271' id='71' type-v2='dashboard-object' w='95734' x='2133' y='7674'>
+                <zone h='6807' id='71' type-v2='dashboard-object' w='4561' x='79111' y='908'>
                   <button action='' button-click-action-metadata='powerpoint'>
-                    <export-button-action>tabdoc:abstract-dashboard-button-export-wrapper dashboard-button-export-type=&quot;powerpoint&quot; dashboarddoc-id=&quot;{5F2A5C29-7293-4687-B423-800944B8EA74}&quot;</export-button-action>
+                    <export-button-action>tabdoc:abstract-dashboard-button-export-wrapper dashboard-button-export-type=&quot;powerpoint&quot; dashboarddoc-id=&quot;{4EB8130E-ED53-492B-BD9E-67CE115BDA31}&quot;</export-button-action>
                     <button-visual-state>
                       <image-path>Image/download 1.png</image-path>
                       <format attr='border-style' value='solid' />
@@ -9022,7 +9539,7 @@
                     <format attr='background-color' value='#e0f9ff' />
                   </zone-style>
                 </zone>
-                <zone h='2419' id='67' type-v2='dashboard-object' w='95734' x='2133' y='12945'>
+                <zone h='6807' id='67' type-v2='dashboard-object' w='8008' x='83672' y='908'>
                   <button action='tabdoc:goto-sheet window-id=&quot;{1DC57A16-50C2-4EB0-8960-00242E6BDD8B}&quot;' button-type='text'>
                     <button-visual-state>
                       <caption>Back</caption>
@@ -9039,7 +9556,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone h='2419' id='68' type-v2='dashboard-object' w='95734' x='2133' y='15364'>
+                <zone h='6807' id='68' type-v2='dashboard-object' w='7845' x='91680' y='908'>
                   <button action='tabdoc:goto-sheet window-id=&quot;{832C68BA-1C84-438F-BFAF-EA91ECA0B071}&quot;' button-type='text'>
                     <button-visual-state>
                       <caption>Next</caption>
@@ -9059,7 +9576,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='546' forceUpdate='true' h='3302' id='38' type-v2='text' w='95734' x='2133' y='17783'>
+                <zone fixed-size='546' forceUpdate='true' h='6994' id='38' type-v2='text' w='32917' x='475' y='7715'>
                   <formatted-text>
                     <run bold='true' fontcolor='#000000'>1. Measure -</run>
                     <run fontcolor='#000000'> Six raw metrics per repository: bus factor, active maintainers, response time, unanswered share, bug backlog, retention.</run>
@@ -9073,7 +9590,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='401' forceUpdate='true' h='2325' id='39' type-v2='text' w='95734' x='2133' y='21085'>
+                <zone fixed-size='401' forceUpdate='true' h='6994' id='39' type-v2='text' w='24302' x='33392' y='7715'>
                   <formatted-text>
                     <run bold='true' fontcolor='#000000'>2. Rank -</run>
                     <run fontcolor='#000000'> Each metric becomes a rank among the 30 repositories: 0 is worst, 1 is best.</run>
@@ -9088,7 +9605,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone forceUpdate='true' h='2325' id='40' type-v2='text' w='95734' x='2133' y='23410'>
+                <zone forceUpdate='true' h='6994' id='40' type-v2='text' w='20915' x='57694' y='7715'>
                   <formatted-text>
                     <run bold='true' fontcolor='#000000'>3. Weight</run>
                     <run fontcolor='#000000'> - Ranks are combined using the weights chosen below</run>
@@ -9102,7 +9619,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone forceUpdate='true' h='2325' id='41' type-v2='text' w='95734' x='2133' y='25735'>
+                <zone forceUpdate='true' h='6994' id='41' type-v2='text' w='20915' x='78609' y='7715'>
                   <formatted-text>
                     <run bold='true' fontcolor='#000000'>4. Score</run>
                     <run fontcolor='#000000'> - The weighted sum, scaled 0 to 100. It is relative, not absolute.</run>
@@ -9116,7 +9633,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone custom-title='true' h='2605' id='65' mode='compact' param='[Parameters].[Parameter 1822767485149224]' type-v2='paramctrl' w='95734' x='2133' y='28060'>
+                <zone custom-title='true' h='4578' id='65' mode='compact' param='[Parameters].[Parameter 1822767485149224]' type-v2='paramctrl' w='13926' x='475' y='14709'>
                   <formatted-text>
                     <run>Scheme</run>
                   </formatted-text>
@@ -9129,7 +9646,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone custom-title='true' h='2605' hide-buttons='true' hide-readout='true' id='58' mode='slider' param='[Parameters].[Parameter 1822767486079018]' type-v2='paramctrl' w='95734' x='2133' y='30665'>
+                <zone custom-title='true' h='4350' hide-buttons='true' hide-readout='true' id='58' mode='slider' param='[Parameters].[Parameter 1822767486079018]' type-v2='paramctrl' w='14167' x='14460' y='14823'>
                   <formatted-text>
                     <run>Bus </run>
                   </formatted-text>
@@ -9141,7 +9658,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone custom-title='true' h='2605' hide-buttons='true' hide-readout='true' id='59' mode='slider' param='[Parameters].[Parameter 1822767487279152]' type-v2='paramctrl' w='95734' x='2133' y='33270'>
+                <zone custom-title='true' h='4350' hide-buttons='true' hide-readout='true' id='59' mode='slider' param='[Parameters].[Parameter 1822767487279152]' type-v2='paramctrl' w='14167' x='28627' y='14823'>
                   <formatted-text>
                     <run>Retention</run>
                   </formatted-text>
@@ -9153,7 +9670,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone custom-title='true' h='2605' hide-buttons='true' hide-readout='true' id='60' mode='slider' param='[Parameters].[Parameter 1822767486664748]' type-v2='paramctrl' w='95734' x='2133' y='35875'>
+                <zone custom-title='true' h='4350' hide-buttons='true' hide-readout='true' id='60' mode='slider' param='[Parameters].[Parameter 1822767486664748]' type-v2='paramctrl' w='14167' x='42794' y='14823'>
                   <formatted-text>
                     <run>Active</run>
                   </formatted-text>
@@ -9165,7 +9682,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone custom-title='true' h='2605' hide-buttons='true' hide-readout='true' id='61' mode='slider' param='[Parameters].[Parameter 1822767487152175]' type-v2='paramctrl' w='95734' x='2133' y='38480'>
+                <zone custom-title='true' h='4350' hide-buttons='true' hide-readout='true' id='61' mode='slider' param='[Parameters].[Parameter 1822767487152175]' type-v2='paramctrl' w='14167' x='56961' y='14823'>
                   <formatted-text>
                     <run>Backlog</run>
                   </formatted-text>
@@ -9177,7 +9694,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone custom-title='true' h='2605' hide-buttons='true' hide-readout='true' id='62' mode='slider' param='[Parameters].[Parameter 1822767486844973]' type-v2='paramctrl' w='95734' x='2133' y='41085'>
+                <zone custom-title='true' h='4350' hide-buttons='true' hide-readout='true' id='62' mode='slider' param='[Parameters].[Parameter 1822767486844973]' type-v2='paramctrl' w='14167' x='71128' y='14823'>
                   <formatted-text>
                     <run>Response</run>
                   </formatted-text>
@@ -9189,7 +9706,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone custom-title='true' h='2605' hide-buttons='true' hide-readout='true' id='63' mode='slider' param='[Parameters].[Parameter 1822767486992430]' type-v2='paramctrl' w='95734' x='2133' y='43690'>
+                <zone custom-title='true' h='4350' hide-buttons='true' hide-readout='true' id='63' mode='slider' param='[Parameters].[Parameter 1822767486992430]' type-v2='paramctrl' w='14167' x='85295' y='14823'>
                   <formatted-text>
                     <run>Unanswered</run>
                   </formatted-text>
@@ -9201,7 +9718,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='13395' id='42' is-fixed='true' name='Weights Used' w='95734' x='2133' y='46295'>
+                <zone fixed-size='225' h='29852' id='42' is-fixed='true' name='Weights Used' w='23498' x='475' y='19287'>
                   <layout-cache minwidth='240' type-h='cell' type-w='scalable' />
                   <zone-style>
                     <format attr='border-color' value='#000000' />
@@ -9212,7 +9729,17 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone h='2605' id='72' mode='dropdown' name='Repo Profile' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:repo_full_name:nk]' type-v2='filter' values='database' w='95734' x='2133' y='59690'>
+                <zone fixed-size='280' h='71288' id='77' is-fixed='true' name='Score Build' w='42657' x='23973' y='19287'>
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='solid' />
+                    <format attr='border-width' value='1' />
+                    <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone h='13621' id='78' name='Score Build' pane-specification-id='8' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]' show-title='false' type-v2='color' w='8825' x='57054' y='67877'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='none' />
@@ -9221,8 +9748,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='13395' id='55' is-fixed='true' name='Repo Profile' w='95734' x='2133' y='62295'>
-                  <layout-cache minwidth='240' type-h='cell' type-w='scalable' />
+                <zone fixed-size='280' h='79805' id='53' is-fixed='true' name='Weight Shift' w='32895' x='66630' y='19287'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='solid' />
@@ -9232,7 +9758,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='13395' id='53' is-fixed='true' name='Weight Shift' w='95734' x='2133' y='75690'>
+                <zone fixed-size='48' h='6356' id='72' mode='dropdown' name='Repo Profile' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:repo_full_name:nk]' type-v2='filter' values='database' w='23498' x='475' y='49139'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='solid' />
@@ -9242,7 +9768,18 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone forceUpdate='true' h='5271' id='69' type-v2='text' w='95734' x='2133' y='89085'>
+                <zone fixed-size='197' h='26339' id='55' is-fixed='true' name='Repo Profile' w='23498' x='475' y='55495'>
+                  <layout-cache cell-count-h='6' minwidth='240' non-cell-size-h='39' type-h='cell' type-w='scalable' />
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='solid' />
+                    <format attr='border-width' value='1' />
+                    <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='144' forceUpdate='true' h='17253' id='69' type-v2='text' w='23498' x='475' y='81834'>
                   <formatted-text>
                     <run bold='true' fontcolor='#000000' fontsize='8'>Sensitivity</run>
                     <run fontcolor='#000000' fontsize='8'>. Rankings hold up across three preset weightings (correlation 0.60 to 0.88), but tier labels don&apos;t: only 9 of 30 repositories (30%) keep the same quartile under all three. Dask, snowflake-connector-python and great_expectations are bottom-tier under every weighting.</run>
@@ -9258,7 +9795,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone forceUpdate='true' h='5272' id='70' type-v2='text' w='95734' x='2133' y='94356'>
+                <zone forceUpdate='true' h='8517' id='70' type-v2='text' w='42657' x='23973' y='90575'>
                   <formatted-text>
                     <run bold='true' fontcolor='#333333' fontsize='8'>What this doesn&apos;t tell you     </run>
                     <run fontcolor='#000000' fontname='Benton Sans Book' fontsize='8'>•</run>
@@ -9895,7 +10432,7 @@
       </viewpoint>
       <simple-id uuid='{69D1C37D-979A-4617-B614-5000BAD5213E}' />
     </window>
-    <window class='dashboard' maximized='true' name='Health Score Intelligence'>
+    <window class='dashboard' name='Health Score Intelligence'>
       <viewpoints>
         <viewpoint name='Repo Profile'>
           <zoom type='entire-view' />
@@ -10201,18 +10738,13 @@
             <card type='rows' />
           </strip>
         </edge>
-        <edge name='right'>
-          <strip size='160'>
-            <card pane-specification-id='4' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]' type='color' />
-          </strip>
-        </edge>
       </cards>
       <viewpoint>
         <zoom type='entire-view' />
       </viewpoint>
       <simple-id uuid='{32D054BB-D589-4E87-B9C6-A8D48DA50BEE}' />
     </window>
-    <window class='worksheet' name='Unresponeded trend'>
+    <window class='worksheet' name='Unresponded trend'>
       <cards>
         <edge name='left'>
           <strip size='242'>
@@ -10229,16 +10761,180 @@
             <card type='rows' />
           </strip>
         </edge>
-        <edge name='right'>
+      </cards>
+      <viewpoint>
+        <zoom type='entire-view' />
+      </viewpoint>
+      <simple-id uuid='{48F7CF41-8841-447B-B6D2-F9F2E34BDB23}' />
+    </window>
+    <window class='worksheet' name='Tile active'>
+      <cards>
+        <edge name='left'>
           <strip size='160'>
-            <card pane-specification-id='6' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]' type='color' />
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
           </strip>
         </edge>
       </cards>
       <viewpoint>
         <zoom type='entire-view' />
       </viewpoint>
-      <simple-id uuid='{48F7CF41-8841-447B-B6D2-F9F2E34BDB23}' />
+      <simple-id uuid='{7FD54535-ECBD-4608-8212-D426B175A256}' />
+    </window>
+    <window class='worksheet' name='Tile New'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <zoom type='entire-view' />
+      </viewpoint>
+      <simple-id uuid='{9F1D71B0-DE8F-4505-9997-CE94D55E556C}' />
+    </window>
+    <window class='worksheet' name='Tile bus'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <zoom type='entire-view' />
+      </viewpoint>
+      <simple-id uuid='{60D1B01E-F739-48C9-90F8-3F4D65A49755}' />
+    </window>
+    <window class='worksheet' name='Tile Top Author share'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <zoom type='entire-view' />
+      </viewpoint>
+      <simple-id uuid='{4F9288BB-17B2-4CC8-8152-B4C2F7805832}' />
+    </window>
+    <window class='worksheet' name='Tile Retention'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <zoom type='entire-view' />
+      </viewpoint>
+      <simple-id uuid='{2D2D79C4-A5B4-4F96-979D-E595B4940508}' />
+    </window>
+    <window class='worksheet' name='Tile Single'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <zoom type='entire-view' />
+      </viewpoint>
+      <simple-id uuid='{BFB98098-744D-4E16-8CB4-3401FB6F25BE}' />
+    </window>
+    <window class='worksheet' maximized='true' name='Cohort Heatmap'>
+      <cards>
+        <edge name='left'>
+          <strip size='237'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card pane-specification-id='0' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769925759087:qk]' type='color' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <zoom type='entire-view' />
+      </viewpoint>
+      <simple-id uuid='{D8F5C048-F0A0-4A88-BFA8-3459D793DA1E}' />
     </window>
   </windows>
   <datagraph>

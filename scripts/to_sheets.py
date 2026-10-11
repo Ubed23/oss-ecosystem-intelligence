@@ -96,7 +96,7 @@ TABS = {
                months_since, cohort_contributors, retained_contributors,
                round(retention_rate, 4) as retention_rate
         from fct_contributor_cohorts
-        where months_since <= 6
+        where months_since <= 11
         order by repo_id, cohort_month, months_since
     """,
     "releases": """
