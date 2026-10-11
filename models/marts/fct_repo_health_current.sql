@@ -66,6 +66,8 @@ base as (
         h.repo_id,
         h.month_start,
         h.bugs_open_at_month_end,
+        coalesce((select sum(m.bugs_opened) from {{ ref('fct_repo_health_monthly') }} m
+            where m.repo_id = h.repo_id), 0) as bugs_opened_total,
         h.bus_factor_50,
         h.top_author_share,
         h.active_contributors,
@@ -105,10 +107,12 @@ ranked as (
         case 
             when ttfr_p50_hours is null then 0.5
             else percent_rank() over (partition by (ttfr_p50_hours is null) order by ttfr_p50_hours desc) end        as response_time_score,
-        case 
+        case
             when unresponded_rate is null then 0.5
             else percent_rank() over (partition by (unresponded_rate is null) order by unresponded_rate desc) end      as unresponded_score,
-        percent_rank() over (order by bugs_open_at_month_end desc nulls last) as bug_backlog_score,
+        case 
+            when bugs_opened_total = 0 then 0.5
+            else percent_rank() over (partition by (bugs_opened_total = 0) order by bugs_open_at_month_end desc) end as bug_backlog_score,
         case when retention_m3 is null then 0.5
             else percent_rank() over (partition by (retention_m3 is null) order by retention_m3) end as contributor_retention_score
     from base
