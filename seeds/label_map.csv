@@ -15,3 +15,15 @@ feature,feature
 type: enhancement,feature
 good first issue,onboarding
 help wanted,onboarding
+kind:bug,bug
+type:bug,bug
+00 - bug,bug
+bug v2,bug
+bug v1,bug
+type-bug,bug
+type-bug-wrong,bug
+#bug,bug
+#bug:cosmetic,bug
+#bug:regression,bug
+#bug:performance,bug
+status: confirmed bug,bug

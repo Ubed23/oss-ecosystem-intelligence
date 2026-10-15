@@ -15,6 +15,7 @@ with exploded as (
     from {{ ref('stg_issues_prs') }} i,
          unnest(string_split(i.labels, '|')) as t(label)
     where i.labels <> ''
+        and i.kind = 'issue'
 
 )
 
