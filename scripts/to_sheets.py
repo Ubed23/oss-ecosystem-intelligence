@@ -102,7 +102,9 @@ TABS = {
     "releases": """
         select repo_id, tag_name, cast(published_at as date) as published_at,
                bugs_after, bugs_baseline, round(expected_bugs, 2) as expected_bugs,
-               round(regression_ratio, 3) as regression_ratio
+               round(regression_ratio, 3) as regression_ratio,
+               cast(cast(published_at as date) + 14 <=
+                    (select cast(max(created_at) as date) from stg_issues_prs) as integer) as window_complete
         from fct_release_reliability
         order by published_at desc
     """,

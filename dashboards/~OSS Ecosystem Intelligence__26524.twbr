@@ -30,6 +30,7 @@
     <_.fcp.WorkbookFingerprinting.true...WorkbookFingerprinting />
     <WorksheetBackgroundTransparency />
     <ZoneBackgroundTransparency />
+    <ZoneVisibilityControl />
   </document-format-change-manifest>
   <preferences>
     <preference name='ui.encoding.shelf.height' value='24' />
@@ -100,8 +101,8 @@
           <member value='&quot;Issues&quot;' />
         </members>
       </column>
-      <column caption='Risk N' datatype='integer' name='[Parameter 1822769719783520]' param-domain-type='range' role='measure' type='quantitative' value='9'>
-        <calculation class='tableau' formula='9' />
+      <column caption='Risk N' datatype='integer' name='[Parameter 1822769719783520]' param-domain-type='range' role='measure' type='quantitative' value='15'>
+        <calculation class='tableau' formula='15' />
         <range granularity='1' max='15' min='3' />
       </column>
     </datasource>
@@ -1422,7 +1423,7 @@
             <contains-null>true</contains-null>
             <attributes>
               <attribute datatype='integer' name='context'>3</attribute>
-              <attribute datatype='string' name='gridOrigin'>&quot;A1:F1863:no:A1:F1863:0&quot;</attribute>
+              <attribute datatype='string' name='gridOrigin'>&quot;A1:F2313:no:A1:F2313:0&quot;</attribute>
               <attribute datatype='boolean' name='header'>true</attribute>
               <attribute datatype='integer' name='outcome'>6</attribute>
             </attributes>
@@ -2660,11 +2661,13 @@
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:health_score:qk]&quot;' value='Health Score' />
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:maintainer_activity_score:qk]&quot;' value='Active maintainers ' />
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:response_time_score:qk]&quot;' value='Response time ' />
+          <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:top_author_share:qk]&quot;' value='Top Author Share' />
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:ttfr_p50_hours (health!monthly):qk]&quot;' value='Response (h)' />
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:unresponded_rate (health!monthly):qk]&quot;' value='Unanswered' />
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:unresponded_score:qk]&quot;' value='Unanswered  ' />
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:ttfr_p50_hours (health!monthly):qk]&quot;' value='P50' />
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:ttfr_p90_hours (health!monthly):qk]&quot;' value='P90' />
+          <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_open_at_month_end (health!monthly):qk]&quot;' value='Open Bugs  ' />
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:Calculation_1822769629802579:qk]&quot;' value='Bus Factor  ' />
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:Calculation_1822769629970516:qk]&quot;' value='Active Maintainers  ' />
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:Calculation_1822769630142549:qk]&quot;' value='Response Time' />
@@ -2672,7 +2675,7 @@
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:Calculation_1822769630535767:qk]&quot;' value='Bug Backlog' />
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:Calculation_1822769630810200:qk]&quot;' value='Retention    ' />
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822766781497344:qk]&quot;' value='Repositories' />
-          <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822766782902273:qk]&quot;' value='Avg. Health Score' />
+          <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822766782902273:qk]&quot;' value='Health Score   ' />
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822766785724418:qk]&quot;' value='Critical Repos' />
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822766786457603:qk]&quot;' value='At Risk Repos' />
           <alias key='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822766788722692:qk]&quot;' value='Healthy Repos' />
@@ -2937,6 +2940,25 @@
       <column caption='Single Bus factor' datatype='integer' name='[Calculation_1822769930502260]' role='measure' type='quantitative'>
         <calculation class='tableau' formula='SUM(IF [bus_factor_50] = 1 THEN 1 ELSE 0 END)' />
       </column>
+      <column caption='Is Latest Complete Month' datatype='boolean' name='[Calculation_1822769946828917]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='[month_start] = DATEADD(&apos;month&apos;, -1, {FIXED : MAX([month_start])})' />
+      </column>
+      <column caption='Backlog Rank' datatype='integer' name='[Calculation_1822769947054198]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='RANK(SUM([bugs_open_at_month_end (health!monthly)]), &apos;desc&apos;)'>
+          <table-calc ordering-type='Rows' />
+        </calculation>
+      </column>
+      <column caption='Show Backlog Row' datatype='boolean' name='[Calculation_1822769947185271]' role='measure' type='nominal'>
+        <calculation class='tableau' formula='[Calculation_1822769947054198] &lt;= 10'>
+          <table-calc ordering-type='Rows' />
+        </calculation>
+      </column>
+      <column caption='Repos in Ecosystem' datatype='integer' name='[Calculation_1822769965531256]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='COUNTD([repo_id (health!monthly)])' />
+      </column>
+      <column caption='Open Bugs per Repo' datatype='real' name='[Calculation_1822769965678713]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='SUM([bugs_open_at_month_end (health!monthly)]) / COUNTD([repo_id (health!monthly)])' />
+      </column>
       <column aggregation='None' caption='Health Score (bin)' datatype='integer' name='[Health Score (bin)]' role='dimension' type='ordinal'>
         <calculation class='bin' decimals='1' formula='[health_score]' peg='0' size='10' />
       </column>
@@ -2972,7 +2994,20 @@
       <column caption='Days Since Release' datatype='integer' name='[days_since_release]' role='measure' type='quantitative' />
       <column caption='Distinct Pr Authors' datatype='integer' name='[distinct_pr_authors]' role='measure' type='quantitative' />
       <column caption='Distinct Pr Authors 90D' datatype='integer' name='[distinct_pr_authors_90d]' role='measure' type='quantitative' />
-      <column caption='Ecosystem (Health!Current)' datatype='string' name='[ecosystem (health!current)]' role='dimension' type='nominal' />
+      <column caption='Ecosystem (Health!Current)' datatype='string' name='[ecosystem (health!current)]' role='dimension' type='nominal'>
+        <aliases>
+          <alias key='&quot;bi&quot;' value='BI' />
+          <alias key='&quot;core&quot;' value='Core' />
+          <alias key='&quot;database&quot;' value='Database' />
+          <alias key='&quot;ml&quot;' value='ML' />
+          <alias key='&quot;mlops&quot;' value='MLOps' />
+          <alias key='&quot;orchestration&quot;' value='Orchestration' />
+          <alias key='&quot;pydata&quot;' value='PyData' />
+          <alias key='&quot;quality&quot;' value='Quality' />
+          <alias key='&quot;transformation&quot;' value='Transformation' />
+          <alias key='&quot;viz&quot;' value='Viz' />
+        </aliases>
+      </column>
       <column caption='Ecosystem' datatype='string' name='[ecosystem]' role='dimension' type='nominal' />
       <column caption='Expected Bugs' datatype='real' name='[expected_bugs]' role='measure' type='quantitative' />
       <column caption='Has Scorecard (Health!Current)' datatype='string' name='[has_scorecard (health!current)]' role='dimension' type='nominal' />
@@ -3041,6 +3076,7 @@
       <column-instance column='[health_score]' derivation='Avg' name='[avg:health_score:qk]' pivot='key' type='quantitative' />
       <column-instance column='[maintainer_activity_score]' derivation='Avg' name='[avg:maintainer_activity_score:qk]' pivot='key' type='quantitative' />
       <column-instance column='[response_time_score]' derivation='Avg' name='[avg:response_time_score:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[top_author_share]' derivation='Avg' name='[avg:top_author_share:qk]' pivot='key' type='quantitative' />
       <column-instance column='[ttfr_p50_hours (health!monthly)]' derivation='Avg' name='[avg:ttfr_p50_hours (health!monthly):qk]' pivot='key' type='quantitative' />
       <column-instance column='[unresponded_rate (health!monthly)]' derivation='Avg' name='[avg:unresponded_rate (health!monthly):qk]' pivot='key' type='quantitative' />
       <column-instance column='[unresponded_score]' derivation='Avg' name='[avg:unresponded_score:qk]' pivot='key' type='quantitative' />
@@ -3048,6 +3084,7 @@
       <column-instance column='[ttfr_p50_hours (health!monthly)]' derivation='Median' name='[med:ttfr_p50_hours (health!monthly):qk]' pivot='key' type='quantitative' />
       <column-instance column='[ttfr_p90_hours (health!monthly)]' derivation='Median' name='[med:ttfr_p90_hours (health!monthly):qk]' pivot='key' type='quantitative' />
       <column-instance column='[Calculation_1822766938935334]' derivation='None' name='[none:Calculation_1822766938935334:nk]' pivot='key' type='nominal' />
+      <column-instance column='[criticality_tier]' derivation='None' name='[none:criticality_tier:nk]' pivot='key' type='nominal' />
       <column-instance column='[health_tier]' derivation='None' name='[none:health_tier:nk]' pivot='key' type='nominal' />
       <column-instance column='[Calculation_1822769629802579]' derivation='Sum' name='[sum:Calculation_1822769629802579:qk]' pivot='key' type='quantitative' />
       <column-instance column='[Calculation_1822769629970516]' derivation='Sum' name='[sum:Calculation_1822769629970516:qk]' pivot='key' type='quantitative' />
@@ -3055,6 +3092,8 @@
       <column-instance column='[Calculation_1822769630302294]' derivation='Sum' name='[sum:Calculation_1822769630302294:qk]' pivot='key' type='quantitative' />
       <column-instance column='[Calculation_1822769630535767]' derivation='Sum' name='[sum:Calculation_1822769630535767:qk]' pivot='key' type='quantitative' />
       <column-instance column='[Calculation_1822769630810200]' derivation='Sum' name='[sum:Calculation_1822769630810200:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[bugs_open_at_month_end (health!monthly)]' derivation='Sum' name='[sum:bugs_open_at_month_end (health!monthly):qk]' pivot='key' type='quantitative' />
+      <column-instance column='[bugs_opened]' derivation='Sum' name='[sum:bugs_opened:qk]' pivot='key' type='quantitative' />
       <column-instance column='[health_score]' derivation='Sum' name='[sum:health_score:qk]' pivot='key' type='quantitative' />
       <column-instance column='[items_opened]' derivation='Sum' name='[sum:items_opened:qk]' pivot='key' type='quantitative' />
       <column-instance column='[median_merge_hours]' derivation='Sum' name='[sum:median_merge_hours:qk]' pivot='key' type='quantitative' />
@@ -3076,7 +3115,7 @@
         </groupfilter>
       </group>
       <extract count='-1' enabled='true' object-id='' units='records' user-specific='false'>
-        <connection access_mode='readonly' authentication='auth-none' author-locale='en_US' class='hyper' dbname='Data/Datasources/repos+ (oss-intel-marts).hyper' default-settings='yes' schema='Extract' sslmode='' update-time='10/10/2026 07:32:21 PM' username='tableau_internal_user'>
+        <connection access_mode='readonly' authentication='auth-none' author-locale='en_US' class='hyper' dbname='Data/Datasources/repos+ (oss-intel-marts).hyper' default-settings='yes' schema='Extract' sslmode='' tablename='Extract' update-time='' username='tableau_internal_user'>
           <relation type='collection'>
             <relation name='repos_AA67009CEC474720A59F9C68F6BC15B1' table='[Extract].[repos_AA67009CEC474720A59F9C68F6BC15B1]' type='table' />
             <relation name='cohorts_92CC2075861640B18862F03EA8553D44' table='[Extract].[cohorts_92CC2075861640B18862F03EA8553D44]' type='table' />
@@ -3162,9 +3201,6 @@
             <map key='[unresponded_score (health!score!monthly)]' value='[health!score!monthly_92F3A97A783B4282A0F105C313B42F80].[unresponded_score]' />
             <map key='[unresponded_score]' value='[health!current_051F685963D545C69C25AF349941A35D].[unresponded_score]' />
           </cols>
-          <refresh>
-            <refresh-event add-from-file-path='repos+ (oss-intel-marts)' increment-value='%null%' refresh-type='create' rows-inserted='3143' timestamp-start='2026-10-10 19:32:16.853' />
-          </refresh>
           <metadata-records>
             <metadata-record class='column'>
               <remote-name>repo_id</remote-name>
@@ -3178,7 +3214,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>repo_full_name</remote-name>
@@ -3193,7 +3228,6 @@
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
-              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>package_name</remote-name>
@@ -3208,7 +3242,6 @@
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
-              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>ecosystem</remote-name>
@@ -3223,7 +3256,6 @@
               <approx-count>10</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
-              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>category</remote-name>
@@ -3238,7 +3270,6 @@
               <approx-count>22</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
-              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>criticality_tier</remote-name>
@@ -3253,7 +3284,6 @@
               <approx-count>3</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
-              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>scorecard_overall</remote-name>
@@ -3267,7 +3297,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>21</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>check_maintained</remote-name>
@@ -3281,7 +3310,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>3</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>check_code_review</remote-name>
@@ -3295,7 +3323,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>10</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>has_scorecard</remote-name>
@@ -3310,7 +3337,6 @@
               <approx-count>2</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
-              <object-id>[repos_AA67009CEC474720A59F9C68F6BC15B1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>repo_id</remote-name>
@@ -3324,7 +3350,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[cohorts_92CC2075861640B18862F03EA8553D44]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>cohort_month</remote-name>
@@ -3338,7 +3363,6 @@
               <aggregation>Year</aggregation>
               <approx-count>12</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[cohorts_92CC2075861640B18862F03EA8553D44]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>months_since</remote-name>
@@ -3350,9 +3374,8 @@
               <family>cohorts</family>
               <local-type>integer</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>7</approx-count>
+              <approx-count>12</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[cohorts_92CC2075861640B18862F03EA8553D44]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>cohort_contributors</remote-name>
@@ -3364,9 +3387,8 @@
               <family>cohorts</family>
               <local-type>integer</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>127</approx-count>
+              <approx-count>123</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[cohorts_92CC2075861640B18862F03EA8553D44]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>retained_contributors</remote-name>
@@ -3378,9 +3400,8 @@
               <family>cohorts</family>
               <local-type>integer</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>115</approx-count>
+              <approx-count>119</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[cohorts_92CC2075861640B18862F03EA8553D44]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>retention_rate</remote-name>
@@ -3392,9 +3413,8 @@
               <family>cohorts</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>366</approx-count>
+              <approx-count>378</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[cohorts_92CC2075861640B18862F03EA8553D44]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>repo_id</remote-name>
@@ -3408,7 +3428,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>repo_full_name</remote-name>
@@ -3423,7 +3442,6 @@
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>ecosystem</remote-name>
@@ -3438,7 +3456,6 @@
               <approx-count>10</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>criticality_tier</remote-name>
@@ -3453,7 +3470,6 @@
               <approx-count>3</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>health_score</remote-name>
@@ -3465,9 +3481,8 @@
               <family>health_current</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>28</approx-count>
+              <approx-count>30</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>health_tier</remote-name>
@@ -3482,7 +3497,6 @@
               <approx-count>4</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bus_factor_50</remote-name>
@@ -3496,7 +3510,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>8</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>top_author_share</remote-name>
@@ -3510,7 +3523,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>ttfr_p50_hours</remote-name>
@@ -3522,9 +3534,8 @@
               <family>health_current</family>
               <local-type>integer</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>22</approx-count>
+              <approx-count>23</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>ttfr_p90_hours</remote-name>
@@ -3538,7 +3549,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>29</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>unresponded_rate</remote-name>
@@ -3552,7 +3562,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>items_opened_90d</remote-name>
@@ -3566,7 +3575,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>prs_merged_90d</remote-name>
@@ -3580,7 +3588,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>29</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>distinct_pr_authors_90d</remote-name>
@@ -3594,7 +3601,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>28</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bugs_open_at_month_end</remote-name>
@@ -3606,9 +3612,8 @@
               <family>health_current</family>
               <local-type>integer</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>21</approx-count>
+              <approx-count>26</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>active_contributors</remote-name>
@@ -3622,7 +3627,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>22</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>retention_m3</remote-name>
@@ -3636,7 +3640,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>23</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>median_release_gap_days</remote-name>
@@ -3650,7 +3653,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>25</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>days_since_release</remote-name>
@@ -3664,7 +3666,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>23</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>is_dormant</remote-name>
@@ -3678,7 +3679,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>2</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>scorecard_overall</remote-name>
@@ -3692,7 +3692,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>6</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>check_maintained</remote-name>
@@ -3706,7 +3705,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>3</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>has_scorecard</remote-name>
@@ -3721,7 +3719,6 @@
               <approx-count>1</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bus_factor_score</remote-name>
@@ -3735,7 +3732,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>8</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>maintainer_activity_score</remote-name>
@@ -3749,7 +3745,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>28</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>response_time_score</remote-name>
@@ -3761,9 +3756,8 @@
               <family>health_current</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>23</approx-count>
+              <approx-count>24</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>unresponded_score</remote-name>
@@ -3777,7 +3771,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>29</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bug_backlog_score</remote-name>
@@ -3789,9 +3782,8 @@
               <family>health_current</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>21</approx-count>
+              <approx-count>25</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>contributor_retention_score</remote-name>
@@ -3805,7 +3797,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>27</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!current_051F685963D545C69C25AF349941A35D]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>repo_id</remote-name>
@@ -3819,7 +3810,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>month_start</remote-name>
@@ -3833,7 +3823,6 @@
               <aggregation>Year</aggregation>
               <approx-count>13</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>ttfr_p50_hours</remote-name>
@@ -3847,7 +3836,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>144</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>ttfr_p90_hours</remote-name>
@@ -3861,7 +3849,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>342</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>items_opened</remote-name>
@@ -3875,7 +3862,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>245</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>unresponded_rate</remote-name>
@@ -3887,9 +3873,8 @@
               <family>health_monthly</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>274</approx-count>
+              <approx-count>284</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>prs_merged</remote-name>
@@ -3903,7 +3888,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>184</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>distinct_pr_authors</remote-name>
@@ -3917,7 +3901,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>83</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>median_merge_hours</remote-name>
@@ -3931,7 +3914,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>156</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bugs_opened</remote-name>
@@ -3943,9 +3925,8 @@
               <family>health_monthly</family>
               <local-type>integer</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>80</approx-count>
+              <approx-count>88</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bugs_open_at_month_end</remote-name>
@@ -3957,9 +3938,8 @@
               <family>health_monthly</family>
               <local-type>integer</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>153</approx-count>
+              <approx-count>207</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>active_contributors</remote-name>
@@ -3973,7 +3953,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>181</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bus_factor_50</remote-name>
@@ -3987,7 +3966,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>8</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!monthly_5FF54EF7835046D09B864BEA44981D05]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>repo_id</remote-name>
@@ -4001,7 +3979,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>30</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>month_start</remote-name>
@@ -4015,7 +3992,6 @@
               <aggregation>Year</aggregation>
               <approx-count>12</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>health_score</remote-name>
@@ -4027,9 +4003,8 @@
               <family>health_score_monthly</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>274</approx-count>
+              <approx-count>261</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>score_change_6m</remote-name>
@@ -4041,9 +4016,8 @@
               <family>health_score_monthly</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>136</approx-count>
+              <approx-count>141</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bus_factor_score</remote-name>
@@ -4057,7 +4031,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>8</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>maintainer_activity_score</remote-name>
@@ -4071,7 +4044,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>83</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>response_time_score</remote-name>
@@ -4085,7 +4057,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>143</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>unresponded_score</remote-name>
@@ -4097,9 +4068,8 @@
               <family>health_score_monthly</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>309</approx-count>
+              <approx-count>311</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bug_backlog_score</remote-name>
@@ -4111,9 +4081,8 @@
               <family>health_score_monthly</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>148</approx-count>
+              <approx-count>198</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>community_activity_score</remote-name>
@@ -4127,7 +4096,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>177</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[health!score!monthly_92F3A97A783B4282A0F105C313B42F80]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>repo_id</remote-name>
@@ -4141,7 +4109,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>29</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[releases_4B81ABE9C9B54C03953ED1A0AF25E810]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>tag_name</remote-name>
@@ -4156,7 +4123,6 @@
               <approx-count>460</approx-count>
               <contains-null>true</contains-null>
               <collation flag='1' name='LEN_RIN_S2' />
-              <object-id>[releases_4B81ABE9C9B54C03953ED1A0AF25E810]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>published_at</remote-name>
@@ -4170,7 +4136,6 @@
               <aggregation>Year</aggregation>
               <approx-count>243</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[releases_4B81ABE9C9B54C03953ED1A0AF25E810]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bugs_after</remote-name>
@@ -4182,9 +4147,8 @@
               <family>releases</family>
               <local-type>integer</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>68</approx-count>
+              <approx-count>71</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[releases_4B81ABE9C9B54C03953ED1A0AF25E810]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>bugs_baseline</remote-name>
@@ -4196,9 +4160,8 @@
               <family>releases</family>
               <local-type>integer</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>164</approx-count>
+              <approx-count>179</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[releases_4B81ABE9C9B54C03953ED1A0AF25E810]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>expected_bugs</remote-name>
@@ -4210,9 +4173,8 @@
               <family>releases</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>164</approx-count>
+              <approx-count>179</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[releases_4B81ABE9C9B54C03953ED1A0AF25E810]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>regression_ratio</remote-name>
@@ -4224,9 +4186,8 @@
               <family>releases</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>203</approx-count>
+              <approx-count>284</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[releases_4B81ABE9C9B54C03953ED1A0AF25E810]</object-id>
             </metadata-record>
           </metadata-records>
         </connection>
@@ -4258,6 +4219,9 @@
             <map to='#00aaff'>
               <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:ttfr_p50_hours (health!monthly):qk]&quot;</bucket>
             </map>
+            <map to='#366b8c'>
+              <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_opened:qk]&quot;</bucket>
+            </map>
             <map to='#4e79a7'>
               <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:Calculation_1822767502602312:qk]&quot;</bucket>
             </map>
@@ -4281,6 +4245,9 @@
             </map>
             <map to='#59a14f'>
               <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822766782902273:qk]&quot;</bucket>
+            </map>
+            <map to='#5b3f8c'>
+              <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_open_at_month_end (health!monthly):qk]&quot;</bucket>
             </map>
             <map to='#76b7b2'>
               <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:health_score:qk]&quot;</bucket>
@@ -4355,6 +4322,17 @@
               <bucket>&quot;RED&quot;</bucket>
             </map>
           </encoding>
+          <encoding attr='color' field='[none:criticality_tier:nk]' type='palette'>
+            <map to='#26cccc'>
+              <bucket>&quot;tier_1&quot;</bucket>
+            </map>
+            <map to='#b787ff'>
+              <bucket>&quot;tier_2&quot;</bucket>
+            </map>
+            <map to='#fd225c'>
+              <bucket>&quot;tier_3&quot;</bucket>
+            </map>
+          </encoding>
         </style-rule>
       </style>
       <semantic-values>
@@ -4402,8 +4380,8 @@
         <column caption='View' datatype='string' name='[Parameter 1822769710825561]' param-domain-type='list' role='measure' type='nominal' value='&quot;Risk&quot;'>
           <calculation class='tableau' formula='&quot;Risk&quot;' />
         </column>
-        <column caption='Risk N' datatype='integer' name='[Parameter 1822769719783520]' param-domain-type='range' role='measure' type='quantitative' value='9'>
-          <calculation class='tableau' formula='9' />
+        <column caption='Risk N' datatype='integer' name='[Parameter 1822769719783520]' param-domain-type='range' role='measure' type='quantitative' value='15'>
+          <calculation class='tableau' formula='15' />
           <range granularity='1' max='15' min='3' />
         </column>
       </datasource-dependencies>
@@ -4651,6 +4629,73 @@
         <cols />
       </table>
       <simple-id uuid='{EEF4CF6F-8A9F-45EB-8313-CBC20DC91861}' />
+    </worksheet>
+    <worksheet name='Active Contributors'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
+          </datasources>
+          <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column caption='Complete month' datatype='boolean' name='[Calculation_1822769915736174]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[month_start]&lt;{ FIXED : MAX([month_start])}' />
+            </column>
+            <column caption='Active Contributions' datatype='real' name='[Calculation_1822769927176306]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM([active_contributors (health!monthly)]) / COUNTD([month_start])' />
+            </column>
+            <column caption='Active Contributors (Health!Monthly)' datatype='integer' name='[active_contributors (health!monthly)]' role='measure' type='quantitative' />
+            <column caption='Month Start' datatype='date' name='[month_start]' role='dimension' type='ordinal' />
+            <column-instance column='[Calculation_1822769915736174]' derivation='None' name='[none:Calculation_1822769915736174:nk]' pivot='key' type='nominal' />
+            <column-instance column='[month_start]' derivation='Month-Trunc' name='[tmn:month_start:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_1822769927176306]' derivation='User' name='[usr:Calculation_1822769927176306:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:Calculation_1822769915736174:nk]'>
+            <groupfilter function='member' level='[none:Calculation_1822769915736174:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:Calculation_1822769915736174:nk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <encoding attr='space' class='0' domain-expand='false' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769927176306:qk]' field-type='quantitative' scope='rows' type='space' />
+            <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769927176306:qk]' scope='rows' value='Active Contributions per Month' />
+            <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' scope='cols' value='Month' />
+          </style-rule>
+          <style-rule element='cell'>
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' value='*mmm - yy' />
+          </style-rule>
+          <style-rule element='label'>
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' value='*mmm - yy' />
+            <format attr='text-orientation' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' value='-90' />
+          </style-rule>
+          <style-rule element='gridline'>
+            <format attr='stroke-size' scope='rows' value='0' />
+            <format attr='line-visibility' scope='rows' value='off' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769927176306:qk]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769927176306:qk]</rows>
+        <cols>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]</cols>
+      </table>
+      <simple-id uuid='{5B18FD97-55FF-4780-9EF1-550DD6F18673}' />
     </worksheet>
     <worksheet name='Alert Feed'>
       <table>
@@ -4909,6 +4954,190 @@
       </table>
       <simple-id uuid='{8A22A5C3-D41E-441A-A221-8C167FFDB36C}' />
     </worksheet>
+    <worksheet name='Backlog Flow'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
+          </datasources>
+          <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column caption='Complete month' datatype='boolean' name='[Calculation_1822769915736174]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[month_start]&lt;{ FIXED : MAX([month_start])}' />
+            </column>
+            <column caption='Bugs Open At Month End (Health!Monthly)' datatype='integer' name='[bugs_open_at_month_end (health!monthly)]' role='measure' type='quantitative' />
+            <column caption='Bugs Opened' datatype='integer' name='[bugs_opened]' role='measure' type='quantitative' />
+            <column caption='Month Start' datatype='date' name='[month_start]' role='dimension' type='ordinal' />
+            <column-instance column='[Calculation_1822769915736174]' derivation='None' name='[none:Calculation_1822769915736174:nk]' pivot='key' type='nominal' />
+            <column-instance column='[bugs_open_at_month_end (health!monthly)]' derivation='Sum' name='[sum:bugs_open_at_month_end (health!monthly):qk]' pivot='key' type='quantitative' />
+            <column-instance column='[bugs_opened]' derivation='Sum' name='[sum:bugs_opened:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[month_start]' derivation='Month-Trunc' name='[tmn:month_start:ok]' pivot='key' type='ordinal' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:Calculation_1822769915736174:nk]'>
+            <groupfilter function='member' level='[none:Calculation_1822769915736174:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:Calculation_1822769915736174:nk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <encoding attr='space' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_open_at_month_end (health!monthly):qk]' field-type='quantitative' fold='true' max='6000' min='0' range-type='fixed' scope='rows' type='space' />
+            <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_opened:qk]' scope='rows' value='Bugs Opened per Month' />
+            <encoding attr='space' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_opened:qk]' field-type='quantitative' max='2000' min='0' range-type='fixed' scope='rows' type='space' />
+            <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_open_at_month_end (health!monthly):qk]' scope='rows' value='Bugs Still Open At Month End' />
+          </style-rule>
+          <style-rule element='label'>
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:ok]' value='*mmm - yy' />
+            <format attr='text-orientation' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:ok]' value='-90' />
+          </style-rule>
+          <style-rule element='worksheet'>
+            <format attr='display-field-labels' scope='cols' value='false' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Bar' />
+            <encodings>
+              <color column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-cull' value='true' />
+                <format attr='mark-labels-show' value='false' />
+              </style-rule>
+            </style>
+          </pane>
+          <pane id='1' selection-relaxation-option='selection-relaxation-allow' y-axis-name='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_opened:qk]'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Bar' />
+            <encodings>
+              <color column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]' />
+              <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_opened:qk]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-cull' value='true' />
+                <format attr='mark-labels-show' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+          <pane id='2' selection-relaxation-option='selection-relaxation-allow' y-axis-name='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_open_at_month_end (health!monthly):qk]'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Line' />
+            <encodings>
+              <color column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]' />
+              <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_open_at_month_end (health!monthly):qk]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-cull' value='true' />
+                <format attr='mark-labels-show' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>([federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_opened:qk] + [federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_open_at_month_end (health!monthly):qk])</rows>
+        <cols>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:ok]</cols>
+      </table>
+      <simple-id uuid='{A0EAD6CD-A742-4A01-8D5F-EE5202801252}' />
+    </worksheet>
+    <worksheet name='Backlog by Ecosystem'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
+          </datasources>
+          <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column caption='Is Latest Complete Month' datatype='boolean' name='[Calculation_1822769946828917]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[month_start] = DATEADD(&apos;month&apos;, -1, {FIXED : MAX([month_start])})' />
+            </column>
+            <column caption='Repos in Ecosystem' datatype='integer' name='[Calculation_1822769965531256]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='COUNTD([repo_id (health!monthly)])' />
+            </column>
+            <column caption='Bugs Open At Month End (Health!Monthly)' datatype='integer' name='[bugs_open_at_month_end (health!monthly)]' role='measure' type='quantitative' />
+            <column caption='Ecosystem (Health!Current)' datatype='string' name='[ecosystem (health!current)]' role='dimension' type='nominal'>
+              <aliases>
+                <alias key='&quot;bi&quot;' value='BI' />
+                <alias key='&quot;core&quot;' value='Core' />
+                <alias key='&quot;database&quot;' value='Database' />
+                <alias key='&quot;ml&quot;' value='ML' />
+                <alias key='&quot;mlops&quot;' value='MLOps' />
+                <alias key='&quot;orchestration&quot;' value='Orchestration' />
+                <alias key='&quot;pydata&quot;' value='PyData' />
+                <alias key='&quot;quality&quot;' value='Quality' />
+                <alias key='&quot;transformation&quot;' value='Transformation' />
+                <alias key='&quot;viz&quot;' value='Viz' />
+              </aliases>
+            </column>
+            <column caption='Month Start' datatype='date' name='[month_start]' role='dimension' type='ordinal' />
+            <column-instance column='[Calculation_1822769946828917]' derivation='None' name='[none:Calculation_1822769946828917:nk]' pivot='key' type='nominal' />
+            <column-instance column='[ecosystem (health!current)]' derivation='None' name='[none:ecosystem (health!current):nk]' pivot='key' type='nominal' />
+            <column caption='Repo Id (Health!Monthly)' datatype='integer' name='[repo_id (health!monthly)]' role='dimension' type='ordinal' />
+            <column-instance column='[bugs_open_at_month_end (health!monthly)]' derivation='Sum' name='[sum:bugs_open_at_month_end (health!monthly):qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_1822769965531256]' derivation='User' name='[usr:Calculation_1822769965531256:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:Calculation_1822769946828917:nk]'>
+            <groupfilter function='member' level='[none:Calculation_1822769946828917:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <computed-sort column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:ecosystem (health!current):nk]' direction='DESC' using='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_open_at_month_end (health!monthly):qk]' />
+          <slices>
+            <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:Calculation_1822769946828917:nk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <format attr='display' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_open_at_month_end (health!monthly):qk]' scope='cols' value='false' />
+          </style-rule>
+          <style-rule element='worksheet'>
+            <format attr='display-field-labels' scope='rows' value='false' />
+          </style-rule>
+          <style-rule element='gridline'>
+            <format attr='stroke-size' scope='rows' value='0' />
+            <format attr='stroke-size' scope='cols' value='0' />
+            <format attr='line-visibility' scope='cols' value='off' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <tooltip column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769965531256:qk]' />
+              <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_open_at_month_end (health!monthly):qk]' />
+            </encodings>
+            <customized-tooltip>
+              <formatted-text>
+                <run bold='true'><![CDATA[<[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:ecosystem (health!current):nk]>]]></run>
+                <run>Æ&#10;</run>
+                <run bold='true'><![CDATA[Open bugs: <[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_open_at_month_end (health!monthly):qk]>]]></run>
+                <run>Æ&#10;</run>
+                <run bold='true'><![CDATA[Repositories: <[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769965531256:qk]>]]></run>
+              </formatted-text>
+            </customized-tooltip>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:ecosystem (health!current):nk]</rows>
+        <cols total='true'>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_open_at_month_end (health!monthly):qk]</cols>
+      </table>
+      <simple-id uuid='{3397E7B4-9ADF-4B5E-8DFE-3946D069B9F5}' />
+    </worksheet>
     <worksheet name='Cohort Heatmap'>
       <table>
         <view>
@@ -4936,6 +5165,11 @@
               <groupfilter function='member' level='[none:months_since:ok]' member='4' />
               <groupfilter function='member' level='[none:months_since:ok]' member='5' />
               <groupfilter function='member' level='[none:months_since:ok]' member='6' />
+              <groupfilter function='member' level='[none:months_since:ok]' member='7' />
+              <groupfilter function='member' level='[none:months_since:ok]' member='8' />
+              <groupfilter function='member' level='[none:months_since:ok]' member='9' />
+              <groupfilter function='member' level='[none:months_since:ok]' member='10' />
+              <groupfilter function='member' level='[none:months_since:ok]' member='11' />
             </groupfilter>
           </filter>
           <slices>
@@ -4951,21 +5185,19 @@
             <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769925759087:qk]' value='p0%' />
           </style-rule>
           <style-rule element='mark'>
-            <encoding attr='color' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769925759087:qk]' max='0.21' min='0.0' symmetric='false' type='custom-interpolated'>
-              <color-palette custom='true' name='' type='ordered-diverging'>
-                <color>#00b3ff</color>
-                <color>#29baf8</color>
-                <color>#50c2f2</color>
-                <color>#76c8ec</color>
-                <color>#99cee5</color>
-                <color>#bad4df</color>
-                <color>#d9d9d9</color>
-                <color>#a2b8c3</color>
-                <color>#739aad</color>
-                <color>#4b7f97</color>
-                <color>#2a6581</color>
-                <color>#114e6b</color>
-                <color>#003a55</color>
+            <encoding attr='color' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769925759087:qk]' max='0.20999999999999999' min='0.0' symmetric='false' type='custom-interpolated'>
+              <color-palette custom='true' name='' type='ordered-sequential'>
+                <color>#f1f1f1</color>
+                <color>#d1dde8</color>
+                <color>#b4cbdf</color>
+                <color>#98b9d6</color>
+                <color>#7ea8cd</color>
+                <color>#6698c5</color>
+                <color>#4f89bc</color>
+                <color>#3a7ab3</color>
+                <color>#276daa</color>
+                <color>#1560a1</color>
+                <color>#065499</color>
               </color-palette>
             </encoding>
           </style-rule>
@@ -5135,6 +5367,13 @@
       <simple-id uuid='{BAC874D4-8D21-4F9C-8303-E3922B2439A9}' />
     </worksheet>
     <worksheet name='Concentration Histogram'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontcolor='#000000' fontsize='10'>&lt;Sheet Name&gt;</run>
+          </formatted-text>
+        </title>
+      </layout-options>
       <table>
         <view>
           <datasources>
@@ -5879,6 +6118,13 @@
       <simple-id uuid='{789669BB-A737-4924-8026-290961ADCA0E}' />
     </worksheet>
     <worksheet name='Lowest Scoring Repos'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontsize='10'>&lt;Sheet Name&gt;</run>
+          </formatted-text>
+        </title>
+      </layout-options>
       <table>
         <view>
           <datasources>
@@ -5886,8 +6132,8 @@
             <datasource name='Parameters' />
           </datasources>
           <datasource-dependencies datasource='Parameters'>
-            <column caption='Risk N' datatype='integer' name='[Parameter 1822769719783520]' param-domain-type='range' role='measure' type='quantitative' value='9'>
-              <calculation class='tableau' formula='9' />
+            <column caption='Risk N' datatype='integer' name='[Parameter 1822769719783520]' param-domain-type='range' role='measure' type='quantitative' value='15'>
+              <calculation class='tableau' formula='15' />
               <range granularity='1' max='15' min='3' />
             </column>
           </datasource-dependencies>
@@ -5969,7 +6215,7 @@
             <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:top_author_share:qk]' value='p0%' />
           </style-rule>
           <style-rule element='header'>
-            <format attr='width' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:repo_full_name:nk]' value='304' />
+            <format attr='width' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:repo_full_name:nk]' value='256' />
             <format attr='band-color' scope='rows' value='#00000000' />
             <format attr='border-width' data-class='subtotal' value='0' />
             <format attr='border-style' data-class='subtotal' value='none' />
@@ -6100,6 +6346,13 @@
       <simple-id uuid='{EA7ECB9C-EB3D-4259-8465-3FF2019D9A92}' />
     </worksheet>
     <worksheet name='Merge Time '>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontsize='10'>&lt;Sheet Name&gt;</run>
+          </formatted-text>
+        </title>
+      </layout-options>
       <table>
         <view>
           <datasources>
@@ -6137,6 +6390,10 @@
           <style-rule element='worksheet'>
             <format attr='display-field-labels' scope='cols' value='false' />
           </style-rule>
+          <style-rule element='gridline'>
+            <format attr='stroke-size' scope='rows' value='0' />
+            <format attr='line-visibility' scope='rows' value='off' />
+          </style-rule>
         </style>
         <panes>
           <pane id='4' selection-relaxation-option='selection-relaxation-allow'>
@@ -6166,7 +6423,73 @@
       </table>
       <simple-id uuid='{0D9B557C-E959-49E4-8C47-BF57BC5F318F}' />
     </worksheet>
+    <worksheet name='New Contributors'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
+          </datasources>
+          <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column caption='New Contributors' datatype='integer' name='[Calculation_1822769926479984]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM(IF [months_since] = 0 THEN [cohort_contributors] END)' />
+            </column>
+            <column caption='Cohort Contributors' datatype='integer' name='[cohort_contributors]' role='measure' type='quantitative' />
+            <column caption='Cohort Month' datatype='date' name='[cohort_month]' role='dimension' type='ordinal' />
+            <column aggregation='Sum' caption='Months Since' datatype='integer' name='[months_since]' role='dimension' type='ordinal' />
+            <column-instance column='[cohort_month]' derivation='Month-Trunc' name='[tmn:cohort_month:ok]' pivot='key' type='ordinal' />
+            <column-instance column='[Calculation_1822769926479984]' derivation='User' name='[usr:Calculation_1822769926479984:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <encoding attr='space' class='0' domain-expand='false' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769926479984:qk]' field-type='quantitative' scope='rows' type='space' />
+            <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769926479984:qk]' scope='rows' value='New Contributors per Month' />
+          </style-rule>
+          <style-rule element='label'>
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:cohort_month:ok]' value='*mmm - yy' />
+            <format attr='text-orientation' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:cohort_month:ok]' value='-90' />
+          </style-rule>
+          <style-rule element='worksheet'>
+            <format attr='display-field-labels' scope='cols' value='false' />
+          </style-rule>
+          <style-rule element='gridline'>
+            <format attr='stroke-size' scope='rows' value='0' />
+            <format attr='line-visibility' scope='rows' value='off' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Bar' />
+            <encodings>
+              <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769926479984:qk]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+                <format attr='mark-color' value='#4640de' />
+                <format attr='mark-transparency' value='201' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769926479984:qk]</rows>
+        <cols>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:cohort_month:ok]</cols>
+      </table>
+      <simple-id uuid='{CB5A442E-02DE-4AB7-9052-9EEB1376542B}' />
+    </worksheet>
     <worksheet name='Opened vs Merged'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontsize='10'>&lt;Sheet Name&gt;</run>
+          </formatted-text>
+        </title>
+      </layout-options>
       <table>
         <view>
           <datasources>
@@ -6204,11 +6527,19 @@
             <encoding attr='space' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:prs_merged:qk]' field-type='quantitative' fold='true' scope='rows' synchronized='true' type='space' />
             <format attr='display' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:prs_merged:qk]' scope='rows' value='false' />
             <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:items_opened:qk]' scope='rows' value='Items opened vs PRs merged' />
-            <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' scope='cols' value='Month' />
+            <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' scope='cols' value='' />
+          </style-rule>
+          <style-rule element='header'>
+            <format attr='border-width' data-class='total' scope='rows' value='0' />
+            <format attr='border-style' data-class='total' scope='rows' value='none' />
           </style-rule>
           <style-rule element='label'>
             <format attr='text-orientation' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' value='-90' />
             <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' value='*mmm - yy' />
+          </style-rule>
+          <style-rule element='pane'>
+            <format attr='border-width' data-class='total' scope='rows' value='0' />
+            <format attr='border-style' data-class='total' scope='rows' value='none' />
           </style-rule>
           <style-rule element='dropline'>
             <format attr='stroke-size' value='0' />
@@ -6225,6 +6556,18 @@
           <style-rule element='zeroline'>
             <format attr='stroke-size' value='0' />
             <format attr='line-visibility' value='off' />
+          </style-rule>
+          <style-rule element='table-div'>
+            <format attr='stroke-size' scope='rows' value='1' />
+            <format attr='line-visibility' scope='rows' value='on' />
+            <format attr='line-pattern-only' scope='rows' value='solid' />
+            <format attr='stroke-size' scope='cols' value='1' />
+            <format attr='line-visibility' scope='cols' value='on' />
+            <format attr='line-pattern-only' scope='cols' value='solid' />
+          </style-rule>
+          <style-rule element='header-div'>
+            <format attr='stroke-size' scope='rows' value='0' />
+            <format attr='line-visibility' scope='rows' value='off' />
           </style-rule>
         </style>
         <panes>
@@ -6608,6 +6951,13 @@
       <simple-id uuid='{A54F1451-3C2D-4513-BEA0-703A5145B082}' />
     </worksheet>
     <worksheet name='Response trend'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontsize='10'>&lt;Sheet Name&gt;</run>
+          </formatted-text>
+        </title>
+      </layout-options>
       <table>
         <view>
           <datasources>
@@ -6644,7 +6994,7 @@
         </view>
         <style>
           <style-rule element='axis'>
-            <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' scope='cols' value='Month' />
+            <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' scope='cols' value='' />
             <encoding attr='space' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:ttfr_p90_hours (health!monthly):qk]' field-type='quantitative' fold='true' scope='rows' synchronized='true' type='space' />
             <encoding attr='space' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:ttfr_p50_hours (health!monthly):qk]' field-type='quantitative' scale='log' scope='rows' type='space' />
             <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[med:ttfr_p50_hours (health!monthly):qk]' scope='rows' value='Response Time (hrs)' />
@@ -6657,6 +7007,21 @@
           <style-rule element='label'>
             <format attr='text-orientation' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' value='-90' />
             <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' value='*mmm - yy' />
+          </style-rule>
+          <style-rule element='gridline'>
+            <format attr='stroke-size' scope='rows' value='0' />
+            <format attr='line-visibility' scope='rows' value='off' />
+          </style-rule>
+          <style-rule element='table-div'>
+            <format attr='stroke-size' scope='cols' value='1' />
+            <format attr='line-visibility' scope='cols' value='on' />
+            <format attr='line-pattern-only' scope='cols' value='solid' />
+          </style-rule>
+          <style-rule element='header-div'>
+            <format attr='stroke-size' scope='rows' value='0' />
+            <format attr='line-visibility' scope='rows' value='off' />
+            <format attr='stroke-size' scope='cols' value='0' />
+            <format attr='line-visibility' scope='cols' value='off' />
           </style-rule>
         </style>
         <panes>
@@ -6724,6 +7089,75 @@
         <cols>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]</cols>
       </table>
       <simple-id uuid='{D806D473-5E64-4963-B004-D099357B7D71}' />
+    </worksheet>
+    <worksheet name='Retention Curve by Tier'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
+          </datasources>
+          <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column caption='Retention Weighted' datatype='real' name='[Calculation_1822769925759087]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM([retained_contributors])/SUM([cohort_contributors])' />
+            </column>
+            <column caption='Cohort Contributors' datatype='integer' name='[cohort_contributors]' role='measure' type='quantitative' />
+            <column caption='Criticality Tier' datatype='string' name='[criticality_tier]' role='dimension' type='nominal' />
+            <column aggregation='Sum' caption='Months Since' datatype='integer' name='[months_since]' role='dimension' type='ordinal' />
+            <column-instance column='[criticality_tier]' derivation='None' name='[none:criticality_tier:nk]' pivot='key' type='nominal' />
+            <column-instance column='[months_since]' derivation='None' name='[none:months_since:qk]' pivot='key' type='quantitative' />
+            <column caption='Retained Contributors' datatype='integer' name='[retained_contributors]' role='measure' type='quantitative' />
+            <column-instance column='[Calculation_1822769925759087]' derivation='User' name='[usr:Calculation_1822769925759087:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='quantitative' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:months_since:qk]' included-values='in-range'>
+            <min>1</min>
+            <max>11</max>
+          </filter>
+          <slices>
+            <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:months_since:qk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769925759087:qk]' scope='rows' value='Share of cohort active that month' />
+            <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:months_since:qk]' scope='cols' value='Months since first contribution' />
+            <encoding attr='space' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:months_since:qk]' field-type='quantitative' max='11' min='1' range-type='fixed' scope='cols' type='space' />
+          </style-rule>
+          <style-rule element='cell'>
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769925759087:qk]' value='p0%' />
+          </style-rule>
+          <style-rule element='label'>
+            <format attr='text-format' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769925759087:qk]' value='p0%' />
+          </style-rule>
+          <style-rule element='gridline'>
+            <format attr='stroke-size' scope='rows' value='0' />
+            <format attr='line-visibility' scope='rows' value='off' />
+            <format attr='stroke-size' scope='cols' value='0' />
+            <format attr='line-visibility' scope='cols' value='off' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Area' />
+            <encodings>
+              <color column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:criticality_tier:nk]' />
+              <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769925759087:qk]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769925759087:qk]</rows>
+        <cols>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:months_since:qk]</cols>
+      </table>
+      <simple-id uuid='{519A4DA0-CA55-420E-86FF-5D851F94BCEE}' />
     </worksheet>
     <worksheet name='Risk Quadrant'>
       <layout-options>
@@ -6860,6 +7294,13 @@
       <simple-id uuid='{2260AF9C-2A3E-42AA-9030-EEF035177DF5}' />
     </worksheet>
     <worksheet name='Risk Scatter'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontsize='10'>&lt;Sheet Name&gt;</run>
+          </formatted-text>
+        </title>
+      </layout-options>
       <table>
         <view>
           <datasources>
@@ -6874,6 +7315,21 @@
             <column-instance column='[bus_factor_50]' derivation='Avg' name='[avg:bus_factor_50:qk]' pivot='key' type='quantitative' />
             <column-instance column='[health_score]' derivation='Avg' name='[avg:health_score:qk]' pivot='key' type='quantitative' />
             <column caption='Bus Factor 50' datatype='integer' name='[bus_factor_50]' role='measure' type='quantitative' />
+            <column caption='Criticality Tier (Health!Current)' datatype='string' name='[criticality_tier (health!current)]' role='dimension' type='nominal' />
+            <column caption='Ecosystem (Health!Current)' datatype='string' name='[ecosystem (health!current)]' role='dimension' type='nominal'>
+              <aliases>
+                <alias key='&quot;bi&quot;' value='BI' />
+                <alias key='&quot;core&quot;' value='Core' />
+                <alias key='&quot;database&quot;' value='Database' />
+                <alias key='&quot;ml&quot;' value='ML' />
+                <alias key='&quot;mlops&quot;' value='MLOps' />
+                <alias key='&quot;orchestration&quot;' value='Orchestration' />
+                <alias key='&quot;pydata&quot;' value='PyData' />
+                <alias key='&quot;quality&quot;' value='Quality' />
+                <alias key='&quot;transformation&quot;' value='Transformation' />
+                <alias key='&quot;viz&quot;' value='Viz' />
+              </aliases>
+            </column>
             <column caption='Health Score' datatype='real' name='[health_score]' role='measure' type='quantitative' />
             <column caption='Health Tier' datatype='string' name='[health_tier]' role='dimension' type='nominal'>
               <aliases>
@@ -6883,6 +7339,8 @@
                 <alias key='&quot;stable&quot;' value='Stable' />
               </aliases>
             </column>
+            <column-instance column='[criticality_tier (health!current)]' derivation='None' name='[none:criticality_tier (health!current):nk]' pivot='key' type='nominal' />
+            <column-instance column='[ecosystem (health!current)]' derivation='None' name='[none:ecosystem (health!current):nk]' pivot='key' type='nominal' />
             <column-instance column='[health_tier]' derivation='None' name='[none:health_tier:nk]' pivot='key' type='nominal' />
             <column-instance column='[repo_full_name (health!current)]' derivation='None' name='[none:repo_full_name (health!current):nk]' pivot='key' type='nominal' />
             <column caption='Package Name' datatype='string' name='[package_name]' role='dimension' type='nominal' />
@@ -6896,12 +7354,30 @@
               </table-calc>
             </column-instance>
           </datasource-dependencies>
+          <filter class='categorical' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:criticality_tier (health!current):nk]'>
+            <groupfilter function='level-members' level='[none:criticality_tier (health!current):nk]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='categorical' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:ecosystem (health!current):nk]'>
+            <groupfilter function='level-members' level='[none:ecosystem (health!current):nk]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:criticality_tier (health!current):nk]</column>
+            <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:ecosystem (health!current):nk]</column>
+          </slices>
           <aggregation value='true' />
         </view>
         <style>
           <style-rule element='axis'>
             <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:bus_factor_50:qk]' scope='cols' value='Bus factor (fewer = riskier)' />
             <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[avg:health_score:qk]' scope='rows' value='Health score (0 to 100)' />
+          </style-rule>
+          <style-rule element='cell'>
+            <format attr='border-width' scope='rows' value='0' />
+            <format attr='border-style' scope='rows' value='none' />
+          </style-rule>
+          <style-rule element='pane'>
+            <format attr='border-width' scope='rows' value='0' />
+            <format attr='border-style' scope='rows' value='none' />
           </style-rule>
           <style-rule element='refline'>
             <format attr='fill-above' id='refline0' value='#00000000' />
@@ -7802,6 +8278,167 @@
       </table>
       <simple-id uuid='{BC8335C6-F405-4333-98A7-D1C108A7E119}' />
     </worksheet>
+    <worksheet name='Top backlog'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
+          </datasources>
+          <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+            <column caption='Average Health Score' datatype='real' name='[Calculation_1822766782902273]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='AVG([health_score])' />
+            </column>
+            <column caption='Is Latest Complete Month' datatype='boolean' name='[Calculation_1822769946828917]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[month_start] = DATEADD(&apos;month&apos;, -1, {FIXED : MAX([month_start])})' />
+            </column>
+            <column caption='Backlog Rank' datatype='integer' name='[Calculation_1822769947054198]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='RANK(SUM([bugs_open_at_month_end (health!monthly)]), &apos;desc&apos;)'>
+                <table-calc ordering-type='Rows' />
+              </calculation>
+            </column>
+            <column caption='Show Backlog Row' datatype='boolean' name='[Calculation_1822769947185271]' role='measure' type='nominal'>
+              <calculation class='tableau' formula='[Calculation_1822769947054198] &lt;= 10'>
+                <table-calc ordering-type='Rows' />
+              </calculation>
+            </column>
+            <column caption='Bug Backlog Score (Health!Score!Monthly)' datatype='real' name='[bug_backlog_score (health!score!monthly)]' role='measure' type='quantitative' />
+            <column caption='Bugs Open At Month End (Health!Monthly)' datatype='integer' name='[bugs_open_at_month_end (health!monthly)]' role='measure' type='quantitative' />
+            <column caption='Bugs Open At Month End' datatype='integer' name='[bugs_open_at_month_end]' role='measure' type='quantitative' />
+            <column caption='Bus Factor Score' datatype='real' name='[bus_factor_score]' role='measure' type='quantitative' />
+            <column caption='Health Score' datatype='real' name='[health_score]' role='measure' type='quantitative' />
+            <column caption='Health Tier' datatype='string' name='[health_tier]' role='dimension' type='nominal'>
+              <aliases>
+                <alias key='&quot;at_risk&quot;' value='At Risk' />
+                <alias key='&quot;critical&quot;' value='Critical' />
+                <alias key='&quot;healthy&quot;' value='Healthy' />
+                <alias key='&quot;stable&quot;' value='Stable' />
+              </aliases>
+            </column>
+            <column caption='Month Start' datatype='date' name='[month_start]' role='dimension' type='ordinal' />
+            <column-instance column='[Calculation_1822769946828917]' derivation='None' name='[none:Calculation_1822769946828917:nk]' pivot='key' type='nominal' />
+            <column-instance column='[health_tier]' derivation='None' name='[none:health_tier:nk]' pivot='key' type='nominal' />
+            <column-instance column='[repo_full_name]' derivation='None' name='[none:repo_full_name:nk]' pivot='key' type='nominal' />
+            <column caption='Repo Full Name' datatype='string' name='[repo_full_name]' role='dimension' type='nominal' />
+            <column-instance column='[bug_backlog_score (health!score!monthly)]' derivation='Sum' name='[sum:bug_backlog_score (health!score!monthly):qk]' pivot='key' type='quantitative' />
+            <column-instance column='[bugs_open_at_month_end (health!monthly)]' derivation='Sum' name='[sum:bugs_open_at_month_end (health!monthly):qk]' pivot='key' type='quantitative' />
+            <column-instance column='[bugs_open_at_month_end]' derivation='Sum' name='[sum:bugs_open_at_month_end:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[bus_factor_score]' derivation='Sum' name='[sum:bus_factor_score:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_1822766782902273]' derivation='User' name='[usr:Calculation_1822766782902273:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_1822769947054198]' derivation='User' name='[usr:Calculation_1822769947054198:ok]' pivot='key' type='ordinal'>
+              <table-calc ordering-type='Field'>
+                <order field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[repo_full_name]' />
+                <order field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[health_tier]' />
+              </table-calc>
+            </column-instance>
+            <column-instance column='[Calculation_1822769947185271]' derivation='User' name='[usr:Calculation_1822769947185271:nk:1]' pivot='key' type='nominal'>
+              <table-calc ordering-field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[repo_full_name]' ordering-type='Field' />
+              <table-calc field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[Calculation_1822769947054198]' ordering-type='Field'>
+                <order field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[repo_full_name]' />
+                <order field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[health_tier]' />
+              </table-calc>
+            </column-instance>
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]'>
+            <groupfilter function='union' user:op='manual'>
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822766782902273:qk]&quot;' />
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_open_at_month_end (health!monthly):qk]&quot;' />
+            </groupfilter>
+          </filter>
+          <manual-sort column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]' direction='ASC'>
+            <dictionary>
+              <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bug_backlog_score (health!score!monthly):qk]&quot;</bucket>
+              <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822766782902273:qk]&quot;</bucket>
+              <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bugs_open_at_month_end:qk]&quot;</bucket>
+              <bucket>&quot;[federated.14rv57519mnb5y18wf6fs0nw8qaz].[sum:bus_factor_score:qk]&quot;</bucket>
+            </dictionary>
+          </manual-sort>
+          <filter class='categorical' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:Calculation_1822769946828917:nk]'>
+            <groupfilter function='member' level='[none:Calculation_1822769946828917:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='categorical' column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769947185271:nk:1]'>
+            <groupfilter function='member' level='[usr:Calculation_1822769947185271:nk:1]' member='true' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:Calculation_1822769946828917:nk]</column>
+            <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769947185271:nk:1]</column>
+            <column>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='cell'>
+            <format attr='color' data-class='subtotal' scope='cols' value='#1b1b1b' />
+            <format attr='color' data-class='subtotal' scope='rows' value='#1b1b1b' />
+          </style-rule>
+          <style-rule element='header'>
+            <format attr='width' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:repo_full_name:nk]' value='224' />
+            <format attr='width' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769947054198:ok]' value='116' />
+            <format attr='band-color' scope='rows' value='#00000000' />
+            <format attr='border-width' data-class='subtotal' scope='cols' value='0' />
+            <format attr='border-style' data-class='subtotal' scope='cols' value='none' />
+            <format attr='border-width' data-class='subtotal' scope='rows' value='0' />
+            <format attr='border-style' data-class='subtotal' scope='rows' value='none' />
+            <format attr='font-family' data-class='subtotal' scope='rows' value='Tableau Bold' />
+            <format attr='color' data-class='subtotal' scope='rows' value='#000000' />
+            <format attr='font-family' data-class='subtotal' scope='cols' value='Tableau Bold' />
+            <format attr='color' data-class='subtotal' scope='cols' value='#000000' />
+            <format attr='background-color' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]' value='#e6e6e6' />
+          </style-rule>
+          <style-rule element='field-labels'>
+            <format attr='background-color' value='#e6e6e6' />
+            <format attr='font-family' value='Tableau Bold' />
+          </style-rule>
+          <style-rule element='field-labels-decoration'>
+            <format attr='text-align' value='auto' />
+          </style-rule>
+          <style-rule element='label'>
+            <format attr='text-align' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769947054198:ok]' value='right' />
+            <format attr='text-align' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:repo_full_name:nk]' value='right' />
+          </style-rule>
+          <style-rule element='pane'>
+            <format attr='band-color' scope='rows' value='#00000000' />
+            <format attr='border-width' data-class='subtotal' scope='cols' value='0' />
+            <format attr='border-style' data-class='subtotal' scope='cols' value='none' />
+            <format attr='border-width' data-class='subtotal' scope='rows' value='0' />
+            <format attr='border-style' data-class='subtotal' scope='rows' value='none' />
+          </style-rule>
+          <style-rule element='table'>
+            <format attr='band-size' scope='rows' value='1' />
+          </style-rule>
+          <style-rule element='worksheet'>
+            <format attr='font-weight' value='bold' />
+            <format attr='color' value='#333333' />
+          </style-rule>
+          <style-rule element='table-div'>
+            <format attr='stroke-size' scope='rows' value='0' />
+            <format attr='line-visibility' scope='rows' value='off' />
+            <format attr='stroke-size' scope='cols' value='0' />
+            <format attr='line-visibility' scope='cols' value='off' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <color column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:health_tier:nk]' />
+              <text column='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[Multiple Values]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>([federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769947054198:ok] / [federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:repo_full_name:nk])</rows>
+        <cols>[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]</cols>
+      </table>
+      <simple-id uuid='{8B39C975-8A47-4219-9F6D-8CC88B9FD161}' />
+    </worksheet>
     <worksheet name='Unresponded Share'>
       <table>
         <view>
@@ -7857,6 +8494,13 @@
       <simple-id uuid='{ED0BEEB6-2925-4068-A120-EA37C492211D}' />
     </worksheet>
     <worksheet name='Unresponded trend'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontsize='10'>&lt;Sheet Name&gt;</run>
+          </formatted-text>
+        </title>
+      </layout-options>
       <table>
         <view>
           <datasources>
@@ -7886,7 +8530,7 @@
         </view>
         <style>
           <style-rule element='axis'>
-            <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' scope='cols' value='Month' />
+            <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[tmn:month_start:qk]' scope='cols' value='' />
             <format attr='title' class='0' field='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[usr:Calculation_1822769754226797:qk]' scope='rows' value='Share of new items with no response' />
           </style-rule>
           <style-rule element='cell'>
@@ -7900,6 +8544,10 @@
           </style-rule>
           <style-rule element='worksheet'>
             <format attr='display-field-labels' scope='cols' value='false' />
+          </style-rule>
+          <style-rule element='gridline'>
+            <format attr='stroke-size' scope='rows' value='0' />
+            <format attr='line-visibility' scope='rows' value='off' />
           </style-rule>
         </style>
         <panes>
@@ -8615,18 +9263,18 @@
       </datasource-dependencies>
       <zones>
         <zone h='100000' id='4' type-v2='layout-basic' w='100000' x='0' y='0'>
-          <zone h='99092' id='55' param='horz' type-v2='layout-flow' w='99520' x='240' y='454'>
-            <zone h='99092' id='52' param='horz' type-v2='layout-flow' w='99520' x='240' y='454'>
-              <zone h='99092' id='50' param='horz' type-v2='layout-flow' w='99520' x='240' y='454'>
-                <zone h='99092' id='48' param='horz' type-v2='layout-flow' w='99520' x='240' y='454'>
-                  <zone h='99092' id='38' param='horz' type-v2='layout-flow' w='99520' x='240' y='454'>
-                    <zone h='99092' id='30' param='horz' type-v2='layout-flow' w='99520' x='240' y='454'>
-                      <zone h='99092' id='28' type-v2='layout-basic' w='99520' x='240' y='454'>
-                        <zone h='55955' id='23' param='horz' type-v2='layout-flow' w='99520' x='240' y='454'>
-                          <zone h='55955' id='21' type-v2='layout-basic' w='99520' x='240' y='454'>
-                            <zone h='55955' id='15' param='horz' type-v2='layout-flow' w='99520' x='240' y='454'>
-                              <zone h='55955' id='13' type-v2='layout-basic' w='99520' x='240' y='454'>
-                                <zone h='13093' id='3' name='Repository Count' show-title='false' w='17592' x='240' y='7264'>
+          <zone h='99092' id='55' param='horz' type-v2='layout-flow' w='99508' x='246' y='454'>
+            <zone h='99092' id='52' param='horz' type-v2='layout-flow' w='99508' x='246' y='454'>
+              <zone h='99092' id='50' param='horz' type-v2='layout-flow' w='99508' x='246' y='454'>
+                <zone h='99092' id='48' param='horz' type-v2='layout-flow' w='99508' x='246' y='454'>
+                  <zone h='99092' id='38' param='horz' type-v2='layout-flow' w='99508' x='246' y='454'>
+                    <zone h='99092' id='30' param='horz' type-v2='layout-flow' w='99508' x='246' y='454'>
+                      <zone h='99092' id='28' type-v2='layout-basic' w='99508' x='246' y='454'>
+                        <zone h='55954' id='23' param='horz' type-v2='layout-flow' w='99508' x='246' y='454'>
+                          <zone h='55954' id='21' type-v2='layout-basic' w='99508' x='246' y='454'>
+                            <zone h='55954' id='15' param='horz' type-v2='layout-flow' w='99508' x='246' y='454'>
+                              <zone h='55954' id='13' type-v2='layout-basic' w='99508' x='246' y='454'>
+                                <zone h='13094' id='3' name='Repository Count' show-title='false' w='17587' x='246' y='7262'>
                                   <zone-style>
                                     <format attr='border-color' value='#000000' />
                                     <format attr='border-style' value='solid' />
@@ -8636,7 +9284,7 @@
                                     <format attr='padding' value='2' />
                                   </zone-style>
                                 </zone>
-                                <zone h='13093' id='7' name='Avg Health Score' show-title='false' w='16985' x='17832' y='7264'>
+                                <zone h='13094' id='7' name='Avg Health Score' show-title='false' w='16983' x='17833' y='7262'>
                                   <zone-style>
                                     <format attr='border-color' value='#000000' />
                                     <format attr='border-style' value='solid' />
@@ -8646,7 +9294,7 @@
                                     <format attr='padding' value='2' />
                                   </zone-style>
                                 </zone>
-                                <zone h='13093' id='9' name='Healthy repositories' show-title='false' w='15841' x='34817' y='7264'>
+                                <zone h='13094' id='9' name='Healthy repositories' show-title='false' w='15840' x='34816' y='7262'>
                                   <zone-style>
                                     <format attr='border-color' value='#000000' />
                                     <format attr='border-style' value='solid' />
@@ -8656,7 +9304,7 @@
                                     <format attr='padding' value='2' />
                                   </zone-style>
                                 </zone>
-                                <zone forceUpdate='true' h='6810' id='11' type-v2='text' w='80489' x='4437' y='454'>
+                                <zone forceUpdate='true' h='6808' id='11' type-v2='text' w='80479' x='4440' y='454'>
                                   <formatted-text>
                                     <run bold='true' fontcolor='#ffffff' fontname='Tableau Bold' fontsize='22'> Executive Overview    </run>
                                   </formatted-text>
@@ -8669,7 +9317,7 @@
                                     <format attr='background-color' value='#16314d' />
                                   </zone-style>
                                 </zone>
-                                <zone h='36052' id='12' name='Health Score Distribution' w='27962' x='240' y='20357'>
+                                <zone h='36052' id='12' name='Health Score Distribution' w='27957' x='246' y='20356'>
                                   <zone-style>
                                     <format attr='border-color' value='#000000' />
                                     <format attr='border-style' value='solid' />
@@ -8679,7 +9327,7 @@
                                     <format attr='padding' value='2' />
                                   </zone-style>
                                 </zone>
-                                <zone h='36052' id='25' name='Risk Quadrant' w='31128' x='28202' y='20357'>
+                                <zone h='36052' id='25' name='Risk Quadrant' w='31124' x='28203' y='20356'>
                                   <zone-style>
                                     <format attr='border-color' value='#000000' />
                                     <format attr='border-style' value='solid' />
@@ -8688,7 +9336,7 @@
                                     <format attr='margin' value='4' />
                                   </zone-style>
                                 </zone>
-                                <zone h='36052' id='26' name='Ecosystem Overview' w='40430' x='59330' y='20357'>
+                                <zone h='36052' id='26' name='Ecosystem Overview' w='40427' x='59327' y='20356'>
                                   <zone-style>
                                     <format attr='border-color' value='#000000' />
                                     <format attr='border-style' value='solid' />
@@ -8697,17 +9345,7 @@
                                     <format attr='margin' value='4' />
                                   </zone-style>
                                 </zone>
-                                <zone h='13093' id='32' name='At risk Repositories' show-title='false' w='15567' x='66700' y='7264'>
-                                  <zone-style>
-                                    <format attr='border-color' value='#000000' />
-                                    <format attr='border-style' value='solid' />
-                                    <format attr='border-width' value='1' />
-                                    <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
-                                    <format attr='margin' value='4' />
-                                    <format attr='padding' value='2' />
-                                  </zone-style>
-                                </zone>
-                                <zone h='13093' id='33' name='Critical Repositories' show-title='false' w='16042' x='50658' y='7264'>
+                                <zone h='13094' id='32' name='At risk Repositories' show-title='false' w='15567' x='66695' y='7262'>
                                   <zone-style>
                                     <format attr='border-color' value='#000000' />
                                     <format attr='border-style' value='solid' />
@@ -8717,7 +9355,7 @@
                                     <format attr='padding' value='2' />
                                   </zone-style>
                                 </zone>
-                                <zone h='13093' id='34' name='Risk repository %' show-title='false' w='17493' x='82267' y='7264'>
+                                <zone h='13094' id='33' name='Critical Repositories' show-title='false' w='16039' x='50656' y='7262'>
                                   <zone-style>
                                     <format attr='border-color' value='#000000' />
                                     <format attr='border-style' value='solid' />
@@ -8727,7 +9365,17 @@
                                     <format attr='padding' value='2' />
                                   </zone-style>
                                 </zone>
-                                <zone alt-text='GitGub' forceUpdate='true' h='6810' id='35' image-file-url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' is-centered='0' is-scaled='1' type-v2='bitmap' url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' w='4197' x='240' y='454'>
+                                <zone h='13094' id='34' name='Risk repository %' show-title='false' w='17492' x='82262' y='7262'>
+                                  <zone-style>
+                                    <format attr='border-color' value='#000000' />
+                                    <format attr='border-style' value='solid' />
+                                    <format attr='border-width' value='1' />
+                                    <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+                                    <format attr='margin' value='4' />
+                                    <format attr='padding' value='2' />
+                                  </zone-style>
+                                </zone>
+                                <zone alt-text='GitGub' forceUpdate='true' h='6808' id='35' image-file-url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' is-centered='0' is-scaled='1' type-v2='bitmap' url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' w='4194' x='246' y='454'>
                                   <zone-style>
                                     <format attr='border-color' value='#000000' />
                                     <format attr='border-style' value='none' />
@@ -8735,7 +9383,7 @@
                                     <format attr='margin' value='4' />
                                   </zone-style>
                                 </zone>
-                                <zone h='6810' id='57' type-v2='dashboard-object' w='9816' x='89944' y='454'>
+                                <zone h='6808' id='57' type-v2='dashboard-object' w='9817' x='89937' y='454'>
                                   <button action='tabdoc:goto-sheet window-id=&quot;{832C68BA-1C84-438F-BFAF-EA91ECA0B071}&quot;' button-type='text'>
                                     <button-visual-state>
                                       <caption>Next</caption>
@@ -8751,7 +9399,7 @@
                                     <format attr='margin' value='4' />
                                   </zone-style>
                                 </zone>
-                                <zone h='6810' id='58' type-v2='dashboard-object' w='5018' x='84926' y='454'>
+                                <zone h='6808' id='58' type-v2='dashboard-object' w='5018' x='84919' y='454'>
                                   <button action='' button-click-action-metadata='powerpoint'>
                                     <export-button-action>tabdoc:abstract-dashboard-button-export-wrapper dashboard-button-export-type=&quot;powerpoint&quot; dashboarddoc-id=&quot;{5F2A5C29-7293-4687-B423-800944B8EA74}&quot;</export-button-action>
                                     <button-visual-state>
@@ -8774,7 +9422,7 @@
                             </zone>
                           </zone>
                         </zone>
-                        <zone h='43137' id='31' name='Score Trend' w='31165' x='240' y='56409'>
+                        <zone h='43138' id='31' name='Score Trend' w='31159' x='246' y='56408'>
                           <zone-style>
                             <format attr='border-color' value='#000000' />
                             <format attr='border-style' value='solid' />
@@ -8783,7 +9431,7 @@
                             <format attr='margin' value='4' />
                           </zone-style>
                         </zone>
-                        <zone h='43137' id='36' name='Watchlist' w='52218' x='31405' y='56409'>
+                        <zone h='43138' id='36' name='Watchlist' w='52211' x='31405' y='56408'>
                           <zone-style>
                             <format attr='border-color' value='#000000' />
                             <format attr='border-style' value='solid' />
@@ -8792,7 +9440,7 @@
                             <format attr='margin' value='4' />
                           </zone-style>
                         </zone>
-                        <zone forceUpdate='true' h='43137' id='46' type-v2='text' w='16137' x='83623' y='56409'>
+                        <zone forceUpdate='true' h='43138' id='46' type-v2='text' w='16138' x='83616' y='56408'>
                           <formatted-text>
                             <run bold='true' fontcolor='#000000' fontname='Tableau Bold' fontsize='12'>Key insights</run>
                             <run>Æ&#10;&#10;</run>
@@ -9108,6 +9756,309 @@
       </devicelayouts>
       <simple-id uuid='{5F2A5C29-7293-4687-B423-800944B8EA74}' />
     </dashboard>
+    <dashboard enable-sort-zone-taborder='true' name='Health Drivers'>
+      <style>
+        <style-rule element='dash-text'>
+          <format attr='text-align' id='dash-text_11' value='center' />
+        </style-rule>
+      </style>
+      <size sizing-mode='automatic' />
+      <datasources>
+        <datasource name='Parameters' />
+        <datasource caption='repos+ (oss-intel-marts)' name='federated.14rv57519mnb5y18wf6fs0nw8qaz' />
+      </datasources>
+      <datasource-dependencies datasource='Parameters'>
+        <column caption='View' datatype='string' name='[Parameter 1822769710825561]' param-domain-type='list' role='measure' type='nominal' value='&quot;Risk&quot;'>
+          <calculation class='tableau' formula='&quot;Risk&quot;' />
+          <members>
+            <member value='&quot;Risk&quot;' />
+            <member value='&quot;Operations&quot;' />
+            <member value='&quot;Community&quot;' />
+            <member value='&quot;Issues&quot;' />
+          </members>
+        </column>
+        <column caption='Risk N' datatype='integer' name='[Parameter 1822769719783520]' param-domain-type='range' role='measure' type='quantitative' value='15'>
+          <calculation class='tableau' formula='15' />
+          <range granularity='1' max='15' min='3' />
+        </column>
+      </datasource-dependencies>
+      <datasource-dependencies datasource='federated.14rv57519mnb5y18wf6fs0nw8qaz'>
+        <column caption='Criticality Tier (Health!Current)' datatype='string' name='[criticality_tier (health!current)]' role='dimension' type='nominal' />
+        <column caption='Ecosystem (Health!Current)' datatype='string' name='[ecosystem (health!current)]' role='dimension' type='nominal'>
+          <aliases>
+            <alias key='&quot;bi&quot;' value='BI' />
+            <alias key='&quot;core&quot;' value='Core' />
+            <alias key='&quot;database&quot;' value='Database' />
+            <alias key='&quot;ml&quot;' value='ML' />
+            <alias key='&quot;mlops&quot;' value='MLOps' />
+            <alias key='&quot;orchestration&quot;' value='Orchestration' />
+            <alias key='&quot;pydata&quot;' value='PyData' />
+            <alias key='&quot;quality&quot;' value='Quality' />
+            <alias key='&quot;transformation&quot;' value='Transformation' />
+            <alias key='&quot;viz&quot;' value='Viz' />
+          </aliases>
+        </column>
+        <column-instance column='[criticality_tier (health!current)]' derivation='None' name='[none:criticality_tier (health!current):nk]' pivot='key' type='nominal' />
+        <column-instance column='[ecosystem (health!current)]' derivation='None' name='[none:ecosystem (health!current):nk]' pivot='key' type='nominal' />
+      </datasource-dependencies>
+      <zones>
+        <zone h='100000' id='4' type-v2='layout-basic' w='100000' x='0' y='0'>
+          <zone h='6897' id='3' param='vert' type-v2='layout-flow' w='74938' x='4257' y='908'>
+            <zone forceUpdate='true' h='6583' id='6' type-v2='text' w='74938' x='4257' y='908'>
+              <formatted-text>
+                <run bold='true' fontalignment='1' fontcolor='#ffffff' fontname='Tableau Bold' fontsize='22'>Health Drivers</run>
+              </formatted-text>
+              <zone-style>
+                <format attr='border-color' value='#000000' />
+                <format attr='border-style' value='solid' />
+                <format attr='border-width' value='1' />
+                <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+                <format attr='margin' value='4' />
+                <format attr='background-color' value='#16314d' />
+              </zone-style>
+            </zone>
+          </zone>
+          <zone h='6897' id='8' param='horz' type-v2='layout-flow' w='3770' x='487' y='908'>
+            <zone alt-text='GitGub' h='6897' id='13' image-file-url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' is-scaled='1' type-v2='bitmap' url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' w='3770' x='487' y='908'>
+              <zone-style>
+                <format attr='border-color' value='#000000' />
+                <format attr='border-style' value='none' />
+                <format attr='border-width' value='0' />
+                <format attr='margin' value='4' />
+              </zone-style>
+            </zone>
+          </zone>
+          <zone h='6897' id='14' type-v2='dashboard-object' w='4380' x='79195' y='908'>
+            <button action='' button-click-action-metadata='powerpoint'>
+              <export-button-action>tabdoc:abstract-dashboard-button-export-wrapper dashboard-button-export-type=&quot;powerpoint&quot; dashboarddoc-id=&quot;{4EB8130E-ED53-492B-BD9E-67CE115BDA31}&quot;</export-button-action>
+              <button-visual-state>
+                <image-path>Image/download 1.png</image-path>
+                <format attr='border-style' value='solid' />
+                <format attr='border-width' value='2' />
+                <format attr='border-color' value='#ffffff' />
+              </button-visual-state>
+            </button>
+            <zone-style>
+              <format attr='border-color' value='#000000' />
+              <format attr='border-style' value='solid' />
+              <format attr='border-width' value='1' />
+              <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+              <format attr='margin' value='4' />
+              <format attr='background-color' value='#e0f9ff' />
+            </zone-style>
+          </zone>
+          <zone h='6897' id='16' type-v2='dashboard-object' w='8091' x='83575' y='908'>
+            <button action='tabdoc:goto-sheet window-id=&quot;{832C68BA-1C84-438F-BFAF-EA91ECA0B071}&quot;' button-type='text'>
+              <button-visual-state>
+                <caption>Back</caption>
+                <button-caption-font-style fontcolor='#ffffff' fontname='Tableau Bold' fontsize='12' />
+                <format attr='background-color' value='#000000' />
+              </button-visual-state>
+            </button>
+            <zone-style>
+              <format attr='border-color' value='#000000' />
+              <format attr='border-style' value='none' />
+              <format attr='border-width' value='0' />
+              <format attr='margin' value='4' />
+            </zone-style>
+          </zone>
+          <zone h='6897' id='17' type-v2='dashboard-object' w='7847' x='91666' y='908'>
+            <button action='tabdoc:goto-sheet window-id=&quot;{30D87972-ABCC-4F74-BCB5-DF6F8B76052F}&quot;' button-type='text'>
+              <button-visual-state>
+                <caption>Next</caption>
+                <button-caption-font-style fontcolor='#ffffff' fontname='Tableau Bold' fontsize='12' />
+                <format attr='background-color' value='#1a5b6f' />
+              </button-visual-state>
+            </button>
+            <zone-style>
+              <format attr='border-color' value='#000000' />
+              <format attr='border-style' value='none' />
+              <format attr='border-width' value='0' />
+              <format attr='margin' value='4' />
+            </zone-style>
+          </zone>
+          <zone h='6723' id='37' layout-strategy-id='distribute-evenly' param='horz' type-v2='layout-flow' w='75668' x='487' y='7805'>
+            <zone fixed-size='179' h='6697' id='23' is-fixed='true' mode='compact' param='[Parameters].[Parameter 1822769710825561]' type-v2='paramctrl' w='25243' x='487' y='7832'>
+              <zone-style>
+                <format attr='border-color' value='#000000' />
+                <format attr='border-style' value='solid' />
+                <format attr='border-width' value='1' />
+                <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+                <format attr='margin' value='4' />
+                <format attr='padding' value='2' />
+              </zone-style>
+            </zone>
+            <zone fixed-size='208' h='6697' id='45' is-fixed='true' mode='dropdown' name='Risk Scatter' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:criticality_tier (health!current):nk]' type-v2='filter' values='database' w='25243' x='25730' y='7832'>
+              <zone-style>
+                <format attr='border-color' value='#000000' />
+                <format attr='border-style' value='solid' />
+                <format attr='border-width' value='1' />
+                <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+                <format attr='margin' value='4' />
+                <format attr='padding' value='2' />
+              </zone-style>
+            </zone>
+            <zone fixed-size='256' h='6697' id='46' is-fixed='true' mode='dropdown' name='Risk Scatter' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:ecosystem (health!current):nk]' type-v2='filter' values='database' w='25183' x='50973' y='7832'>
+              <zone-style>
+                <format attr='border-color' value='#000000' />
+                <format attr='border-style' value='solid' />
+                <format attr='border-width' value='1' />
+                <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+                <format attr='margin' value='4' />
+                <format attr='padding' value='2' />
+              </zone-style>
+            </zone>
+          </zone>
+          <zone custom-title='true' h='6723' id='33' mode='slider' param='[Parameters].[Parameter 1822769719783520]' type-v2='paramctrl' w='23358' x='76155' y='7805'>
+            <formatted-text>
+              <run>Show Lowest</run>
+            </formatted-text>
+            <zone-style>
+              <format attr='border-color' value='#000000' />
+              <format attr='border-style' value='solid' />
+              <format attr='border-width' value='1' />
+              <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+              <format attr='margin' value='4' />
+              <format attr='padding' value='2' />
+            </zone-style>
+          </zone>
+          <zone h='10442' hidden-by-user='true' id='47' param='horz' type-v2='layout-flow' w='99026' x='487' y='14528'>
+            <zone fixed-size='267' h='10442' hidden-by-user='true' id='48' is-fixed='true' name='Items Opened' show-title='false' w='16728' x='487' y='14528'>
+              <layout-cache type-h='cell' type-w='cell' />
+              <zone-style>
+                <format attr='border-color' value='#000000' />
+                <format attr='border-style' value='solid' />
+                <format attr='border-width' value='1' />
+                <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+                <format attr='margin' value='4' />
+                <format attr='padding' value='2' />
+              </zone-style>
+            </zone>
+            <zone h='10442' hidden-by-user='true' id='49' name='Prs Merged' show-title='false' w='16459' x='17215' y='14528'>
+              <layout-cache cell-count-w='1' type-h='fixed' type-w='cell' />
+              <zone-style>
+                <format attr='border-color' value='#000000' />
+                <format attr='border-style' value='solid' />
+                <format attr='border-width' value='1' />
+                <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+                <format attr='margin' value='4' />
+                <format attr='padding' value='2' />
+              </zone-style>
+            </zone>
+            <zone h='10442' hidden-by-user='true' id='50' name='Repo no activity' show-title='false' w='16459' x='33674' y='14528'>
+              <layout-cache cell-count-w='1' type-h='fixed' type-w='cell' />
+              <zone-style>
+                <format attr='border-color' value='#000000' />
+                <format attr='border-style' value='solid' />
+                <format attr='border-width' value='1' />
+                <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+                <format attr='margin' value='4' />
+                <format attr='padding' value='2' />
+              </zone-style>
+            </zone>
+            <zone h='10442' hidden-by-user='true' id='51' name='Median First Response' show-title='false' w='16459' x='50133' y='14528'>
+              <layout-cache cell-count-w='1' type-h='fixed' type-w='cell' />
+              <zone-style>
+                <format attr='border-color' value='#000000' />
+                <format attr='border-style' value='solid' />
+                <format attr='border-width' value='1' />
+                <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+                <format attr='margin' value='4' />
+                <format attr='padding' value='2' />
+              </zone-style>
+            </zone>
+            <zone h='10442' hidden-by-user='true' id='52' name='90th Percentile' show-title='false' w='16459' x='66592' y='14528'>
+              <layout-cache cell-count-w='1' type-h='fixed' type-w='cell' />
+              <zone-style>
+                <format attr='border-color' value='#000000' />
+                <format attr='border-style' value='solid' />
+                <format attr='border-width' value='1' />
+                <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+                <format attr='margin' value='4' />
+                <format attr='padding' value='2' />
+              </zone-style>
+            </zone>
+            <zone h='10442' hidden-by-user='true' id='53' name='Unresponded Share' show-title='false' w='16459' x='83051' y='14528'>
+              <layout-cache cell-count-w='1' type-h='fixed' type-w='cell' />
+              <zone-style>
+                <format attr='border-color' value='#000000' />
+                <format attr='border-style' value='solid' />
+                <format attr='border-width' value='1' />
+                <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+                <format attr='margin' value='4' />
+                <format attr='padding' value='2' />
+              </zone-style>
+            </zone>
+          </zone>
+          <zone h='39727' hidden-by-user='true' id='54' name='Opened vs Merged' w='49512' x='487' y='24970'>
+            <zone-style>
+              <format attr='border-color' value='#000000' />
+              <format attr='border-style' value='solid' />
+              <format attr='border-width' value='1' />
+              <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+              <format attr='margin' value='4' />
+              <format attr='padding' value='2' />
+            </zone-style>
+          </zone>
+          <zone h='39727' hidden-by-user='true' id='56' name='Response trend' w='49514' x='49999' y='24970'>
+            <zone-style>
+              <format attr='border-color' value='#000000' />
+              <format attr='border-style' value='solid' />
+              <format attr='border-width' value='1' />
+              <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+              <format attr='margin' value='4' />
+              <format attr='padding' value='2' />
+            </zone-style>
+          </zone>
+          <zone h='34395' hidden-by-user='true' id='57' name='Merge Time ' w='49512' x='487' y='64697'>
+            <zone-style>
+              <format attr='border-color' value='#000000' />
+              <format attr='border-style' value='solid' />
+              <format attr='border-width' value='1' />
+              <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+              <format attr='margin' value='4' />
+              <format attr='padding' value='2' />
+            </zone-style>
+          </zone>
+          <zone h='34395' hidden-by-user='true' id='58' name='Unresponded trend' w='49514' x='49999' y='64697'>
+            <zone-style>
+              <format attr='border-color' value='#000000' />
+              <format attr='border-style' value='solid' />
+              <format attr='border-width' value='1' />
+              <_.fcp.DashboardRoundedCorners.true...format attr='corner-radius' value='10' />
+              <format attr='margin' value='4' />
+              <format attr='padding' value='2' />
+            </zone-style>
+          </zone>
+          <zone-style>
+            <format attr='border-color' value='#000000' />
+            <format attr='border-style' value='none' />
+            <format attr='border-width' value='0' />
+            <format attr='margin' value='8' />
+          </zone-style>
+        </zone>
+        <zone h='12032' id='40' name='Risk Scatter' pane-specification-id='0' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:health_tier:nk]' type-v2='color' w='8516' x='39903' y='38479' />
+        <zone h='2838' hidden-by-user='true' id='55' name='Opened vs Merged' pane-specification-id='1' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]' show-title='false' type-v2='color' w='15937' x='33577' y='25993' />
+        <zone h='3065' hidden-by-user='true' id='59' name='Response trend' pane-specification-id='3' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[:Measure Names]' show-title='false' type-v2='color' w='14842' x='84367' y='25880' />
+      </zones>
+      <devicelayouts>
+        <devicelayout auto-generated='true' name='Phone'>
+          <size maxheight='700' minheight='700' sizing-mode='vscroll' />
+          <zones>
+            <zone h='100000' id='2' type-v2='layout-basic' w='100000' x='0' y='0'>
+              <zone h='84000' id='1' param='vert' type-v2='layout-flow' w='84000' x='8000' y='8000' />
+              <zone-style>
+                <format attr='border-color' value='#000000' />
+                <format attr='border-style' value='none' />
+                <format attr='border-width' value='0' />
+                <format attr='margin' value='8' />
+              </zone-style>
+            </zone>
+          </zones>
+        </devicelayout>
+      </devicelayouts>
+      <simple-id uuid='{99714557-9E2F-43D9-BE36-3E7966D4853C}' />
+    </dashboard>
     <dashboard enable-sort-zone-taborder='true' name='Health Score Intelligence'>
       <style>
         <style-rule element='dash-text'>
@@ -9160,11 +10111,11 @@
       </datasource-dependencies>
       <zones>
         <zone h='100000' id='6' type-v2='layout-basic' w='100000' x='0' y='0'>
-          <zone h='91377' id='45' param='horz' type-v2='layout-flow' w='99050' x='475' y='7715'>
-            <zone h='91377' id='43' type-v2='layout-basic' w='99050' x='475' y='7715'>
-              <zone h='79805' id='34' param='vert' type-v2='layout-flow' w='23498' x='475' y='19287'>
-                <zone h='79805' id='35' param='vert' type-v2='layout-flow' w='23498' x='475' y='19287'>
-                  <zone fixed-size='255' h='29852' id='42' is-fixed='true' name='Weights Used' w='23498' x='475' y='19287'>
+          <zone h='91650' id='45' param='horz' type-v2='layout-flow' w='99166' x='417' y='7588'>
+            <zone h='91650' id='43' type-v2='layout-basic' w='99166' x='417' y='7588'>
+              <zone h='80045' id='34' param='vert' type-v2='layout-flow' w='23525' x='417' y='19193'>
+                <zone h='80045' id='35' param='vert' type-v2='layout-flow' w='23525' x='417' y='19193'>
+                  <zone fixed-size='255' h='25048' id='42' is-fixed='true' name='Weights Used' w='23525' x='417' y='19193'>
                     <layout-cache minwidth='240' type-h='cell' type-w='scalable' />
                     <zone-style>
                       <format attr='border-color' value='#000000' />
@@ -9175,7 +10126,7 @@
                       <format attr='padding' value='2' />
                     </zone-style>
                   </zone>
-                  <zone fixed-size='48' h='6356' id='72' is-fixed='true' mode='dropdown' name='Repo Profile' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:repo_full_name:nk]' type-v2='filter' values='database' w='23498' x='475' y='49139'>
+                  <zone fixed-size='48' h='5333' id='72' is-fixed='true' mode='dropdown' name='Repo Profile' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:repo_full_name:nk]' type-v2='filter' values='database' w='23525' x='417' y='44241'>
                     <zone-style>
                       <format attr='border-color' value='#000000' />
                       <format attr='border-style' value='solid' />
@@ -9185,7 +10136,7 @@
                       <format attr='padding' value='2' />
                     </zone-style>
                   </zone>
-                  <zone h='26339' id='55' name='Repo Profile' w='23498' x='475' y='55495'>
+                  <zone h='35184' id='55' name='Repo Profile' w='23525' x='417' y='49574'>
                     <layout-cache cell-count-h='6' minwidth='240' non-cell-size-h='39' type-h='cell' type-w='scalable' />
                     <zone-style>
                       <format attr='border-color' value='#000000' />
@@ -9196,7 +10147,7 @@
                       <format attr='padding' value='2' />
                     </zone-style>
                   </zone>
-                  <zone fixed-size='144' forceUpdate='true' h='17253' id='69' is-fixed='true' type-v2='text' w='23498' x='475' y='81834'>
+                  <zone fixed-size='144' forceUpdate='true' h='14476' id='69' is-fixed='true' type-v2='text' w='23525' x='417' y='84758'>
                     <formatted-text>
                       <run bold='true' fontcolor='#000000' fontsize='8'>Sensitivity</run>
                       <run fontcolor='#000000' fontsize='8'>. Rankings hold up across three preset weightings (correlation 0.60 to 0.88), but tier labels don&apos;t: only 9 of 30 repositories (30%) keep the same quartile under all three. Dask, snowflake-connector-python and great_expectations are bottom-tier under every weighting.</run>
@@ -9214,7 +10165,7 @@
                   </zone>
                 </zone>
               </zone>
-              <zone h='79805' id='53' name='Weight Shift' w='32895' x='66630' y='19287'>
+              <zone h='80045' id='53' name='Weight Shift' w='32935' x='66648' y='19193'>
                 <zone-style>
                   <format attr='border-color' value='#000000' />
                   <format attr='border-style' value='solid' />
@@ -9224,8 +10175,8 @@
                   <format attr='padding' value='2' />
                 </zone-style>
               </zone>
-              <zone fixed-size='72' h='6994' id='37' is-fixed='true' param='horz' type-v2='layout-flow' w='99050' x='475' y='7715'>
-                <zone fixed-size='546' forceUpdate='true' h='6994' id='38' is-fixed='true' type-v2='text' w='32917' x='475' y='7715'>
+              <zone fixed-size='72' h='7013' id='37' is-fixed='true' param='horz' type-v2='layout-flow' w='99166' x='417' y='7588'>
+                <zone fixed-size='546' forceUpdate='true' h='7013' id='38' is-fixed='true' type-v2='text' w='28855' x='417' y='7588'>
                   <formatted-text>
                     <run bold='true' fontcolor='#000000'>1. Measure -</run>
                     <run fontcolor='#000000'> Six raw metrics per repository: bus factor, active maintainers, response time, unanswered share, bug backlog, retention.</run>
@@ -9239,7 +10190,7 @@
                     <format attr='padding' value='2' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='401' forceUpdate='true' h='6994' id='39' is-fixed='true' type-v2='text' w='24302' x='33392' y='7715'>
+                <zone fixed-size='401' forceUpdate='true' h='7013' id='39' is-fixed='true' type-v2='text' w='21302' x='29272' y='7588'>
                   <formatted-text>
                     <run bold='true' fontcolor='#000000'>2. Rank -</run>
                     <run fontcolor='#000000'> Each metric becomes a rank among the 30 repositories: 0 is worst, 1 is best.</run>
@@ -9254,7 +10205,7 @@
                     <format attr='padding' value='2' />
                   </zone-style>
                 </zone>
-                <zone forceUpdate='true' h='6994' id='40' type-v2='text' w='20915' x='57694' y='7715'>
+                <zone forceUpdate='true' h='7013' id='40' type-v2='text' w='24504' x='50574' y='7588'>
                   <formatted-text>
                     <run bold='true' fontcolor='#000000'>3. Weight</run>
                     <run fontcolor='#000000'> - Ranks are combined using the weights chosen below</run>
@@ -9268,7 +10219,7 @@
                     <format attr='padding' value='2' />
                   </zone-style>
                 </zone>
-                <zone forceUpdate='true' h='6994' id='41' type-v2='text' w='20915' x='78609' y='7715'>
+                <zone forceUpdate='true' h='7013' id='41' type-v2='text' w='24504' x='75078' y='7588'>
                   <formatted-text>
                     <run bold='true' fontcolor='#000000'>4. Score</run>
                     <run fontcolor='#000000'> - The weighted sum, scaled 0 to 100. It is relative, not absolute.</run>
@@ -9283,8 +10234,8 @@
                   </zone-style>
                 </zone>
               </zone>
-              <zone h='4578' id='57' param='horz' type-v2='layout-flow' w='85124' x='14401' y='14709'>
-                <zone custom-title='true' h='4350' hide-buttons='true' hide-readout='true' id='58' mode='slider' param='[Parameters].[Parameter 1822767486079018]' type-v2='paramctrl' w='14167' x='14460' y='14823'>
+              <zone h='4592' id='57' param='horz' type-v2='layout-flow' w='85225' x='14358' y='14601'>
+                <zone custom-title='true' h='4402' hide-buttons='true' hide-readout='true' id='58' mode='slider' param='[Parameters].[Parameter 1822767486079018]' type-v2='paramctrl' w='14186' x='14410' y='14696'>
                   <formatted-text>
                     <run>Bus </run>
                   </formatted-text>
@@ -9295,7 +10246,7 @@
                     <format attr='margin' value='4' />
                   </zone-style>
                 </zone>
-                <zone custom-title='true' h='4350' hide-buttons='true' hide-readout='true' id='59' mode='slider' param='[Parameters].[Parameter 1822767487279152]' type-v2='paramctrl' w='14167' x='28627' y='14823'>
+                <zone custom-title='true' h='4402' hide-buttons='true' hide-readout='true' id='59' mode='slider' param='[Parameters].[Parameter 1822767487279152]' type-v2='paramctrl' w='14186' x='28596' y='14696'>
                   <formatted-text>
                     <run>Retention</run>
                   </formatted-text>
@@ -9306,7 +10257,7 @@
                     <format attr='margin' value='4' />
                   </zone-style>
                 </zone>
-                <zone custom-title='true' h='4350' hide-buttons='true' hide-readout='true' id='60' mode='slider' param='[Parameters].[Parameter 1822767486664748]' type-v2='paramctrl' w='14167' x='42794' y='14823'>
+                <zone custom-title='true' h='4402' hide-buttons='true' hide-readout='true' id='60' mode='slider' param='[Parameters].[Parameter 1822767486664748]' type-v2='paramctrl' w='14186' x='42782' y='14696'>
                   <formatted-text>
                     <run>Active</run>
                   </formatted-text>
@@ -9317,7 +10268,7 @@
                     <format attr='margin' value='4' />
                   </zone-style>
                 </zone>
-                <zone custom-title='true' h='4350' hide-buttons='true' hide-readout='true' id='61' mode='slider' param='[Parameters].[Parameter 1822767487152175]' type-v2='paramctrl' w='14167' x='56961' y='14823'>
+                <zone custom-title='true' h='4402' hide-buttons='true' hide-readout='true' id='61' mode='slider' param='[Parameters].[Parameter 1822767487152175]' type-v2='paramctrl' w='14186' x='56968' y='14696'>
                   <formatted-text>
                     <run>Backlog</run>
                   </formatted-text>
@@ -9328,7 +10279,7 @@
                     <format attr='margin' value='4' />
                   </zone-style>
                 </zone>
-                <zone custom-title='true' h='4350' hide-buttons='true' hide-readout='true' id='62' mode='slider' param='[Parameters].[Parameter 1822767486844973]' type-v2='paramctrl' w='14167' x='71128' y='14823'>
+                <zone custom-title='true' h='4402' hide-buttons='true' hide-readout='true' id='62' mode='slider' param='[Parameters].[Parameter 1822767486844973]' type-v2='paramctrl' w='14186' x='71154' y='14696'>
                   <formatted-text>
                     <run>Response</run>
                   </formatted-text>
@@ -9339,7 +10290,7 @@
                     <format attr='margin' value='4' />
                   </zone-style>
                 </zone>
-                <zone custom-title='true' h='4350' hide-buttons='true' hide-readout='true' id='63' mode='slider' param='[Parameters].[Parameter 1822767486992430]' type-v2='paramctrl' w='14167' x='85295' y='14823'>
+                <zone custom-title='true' h='4402' hide-buttons='true' hide-readout='true' id='63' mode='slider' param='[Parameters].[Parameter 1822767486992430]' type-v2='paramctrl' w='14186' x='85340' y='14696'>
                   <formatted-text>
                     <run>Unanswered</run>
                   </formatted-text>
@@ -9359,7 +10310,7 @@
                   <format attr='padding' value='0' />
                 </zone-style>
               </zone>
-              <zone custom-title='true' h='4578' id='65' mode='compact' param='[Parameters].[Parameter 1822767485149224]' type-v2='paramctrl' w='13926' x='475' y='14709'>
+              <zone custom-title='true' h='4592' id='65' mode='compact' param='[Parameters].[Parameter 1822767485149224]' type-v2='paramctrl' w='13941' x='417' y='14601'>
                 <formatted-text>
                   <run>Scheme</run>
                 </formatted-text>
@@ -9372,7 +10323,7 @@
                   <format attr='padding' value='2' />
                 </zone-style>
               </zone>
-              <zone h='71288' id='77' name='Score Build' w='42657' x='23973' y='19287'>
+              <zone h='71501' id='77' name='Score Build' w='42706' x='23942' y='19193'>
                 <zone-style>
                   <format attr='border-color' value='#000000' />
                   <format attr='border-style' value='solid' />
@@ -9382,7 +10333,7 @@
                   <format attr='padding' value='2' />
                 </zone-style>
               </zone>
-              <zone forceUpdate='true' h='8517' id='70' type-v2='text' w='42657' x='23973' y='90575'>
+              <zone forceUpdate='true' h='8544' id='70' type-v2='text' w='42706' x='23942' y='90694'>
                 <formatted-text>
                   <run bold='true' fontcolor='#333333' fontsize='8'>What this doesn&apos;t tell you     </run>
                   <run fontcolor='#000000' fontname='Benton Sans Book' fontsize='8'>•</run>
@@ -9405,7 +10356,7 @@
               </zone>
             </zone>
           </zone>
-          <zone forceUpdate='true' h='6807' id='32' type-v2='text' w='74876' x='4235' y='908'>
+          <zone forceUpdate='true' h='6826' id='32' type-v2='text' w='74963' x='4181' y='762'>
             <formatted-text>
               <run bold='true' fontalignment='1' fontcolor='#ffffff' fontname='Tableau Bold' fontsize='22'>Health Score Intelligence</run>
             </formatted-text>
@@ -9418,7 +10369,7 @@
               <format attr='background-color' value='#16314d' />
             </zone-style>
           </zone>
-          <zone alt-text='GitGub' h='6807' id='66' image-file-url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' is-scaled='1' type-v2='bitmap' url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' w='3760' x='475' y='908'>
+          <zone alt-text='GitGub' h='6826' id='66' image-file-url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' is-scaled='1' type-v2='bitmap' url='https://cdn-icons-png.flaticon.com/128/2111/2111432.png' w='3764' x='417' y='762'>
             <zone-style>
               <format attr='border-color' value='#000000' />
               <format attr='border-style' value='none' />
@@ -9426,7 +10377,7 @@
               <format attr='margin' value='4' />
             </zone-style>
           </zone>
-          <zone h='6807' id='67' type-v2='dashboard-object' w='8008' x='83672' y='908'>
+          <zone h='6826' id='67' type-v2='dashboard-object' w='8017' x='83710' y='762'>
             <button action='tabdoc:goto-sheet window-id=&quot;{1DC57A16-50C2-4EB0-8960-00242E6BDD8B}&quot;' button-type='text'>
               <button-visual-state>
                 <caption>Back</caption>
@@ -9442,7 +10393,7 @@
               <format attr='margin' value='4' />
             </zone-style>
           </zone>
-          <zone h='6807' id='68' type-v2='dashboard-object' w='7845' x='91680' y='908'>
+          <zone h='6826' id='68' type-v2='dashboard-object' w='7856' x='91727' y='762'>
             <button action='tabdoc:goto-sheet window-id=&quot;{832C68BA-1C84-438F-BFAF-EA91ECA0B071}&quot;' button-type='text'>
               <button-visual-state>
                 <caption>Next</caption>
@@ -9461,7 +10412,7 @@
               <format attr='margin' value='4' />
             </zone-style>
           </zone>
-          <zone h='6807' id='71' type-v2='dashboard-object' w='4561' x='79111' y='908'>
+          <zone h='6826' id='71' type-v2='dashboard-object' w='4566' x='79144' y='762'>
             <button action='' button-click-action-metadata='powerpoint'>
               <export-button-action>tabdoc:abstract-dashboard-button-export-wrapper dashboard-button-export-type=&quot;powerpoint&quot; dashboarddoc-id=&quot;{4EB8130E-ED53-492B-BD9E-67CE115BDA31}&quot;</export-button-action>
               <button-visual-state>
@@ -10445,7 +11396,7 @@
           <zoom type='entire-view' />
         </viewpoint>
       </viewpoints>
-      <active id='69' />
+      <active id='67' />
       <simple-id uuid='{832C68BA-1C84-438F-BFAF-EA91ECA0B071}' />
     </window>
     <window class='worksheet' name='Risk Scatter'>
@@ -10905,7 +11856,7 @@
       </viewpoint>
       <simple-id uuid='{BFB98098-744D-4E16-8CB4-3401FB6F25BE}' />
     </window>
-    <window class='worksheet' maximized='true' name='Cohort Heatmap'>
+    <window class='worksheet' name='Cohort Heatmap'>
       <cards>
         <edge name='left'>
           <strip size='237'>
@@ -10936,6 +11887,217 @@
       </viewpoint>
       <simple-id uuid='{D8F5C048-F0A0-4A88-BFA8-3459D793DA1E}' />
     </window>
+    <window class='worksheet' name='Retention Curve by Tier'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card pane-specification-id='0' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:criticality_tier:nk]' type='color' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{EF870B53-8D47-4360-AC68-87EB9F10F55E}' />
+    </window>
+    <window class='worksheet' name='New Contributors'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <zoom type='entire-view' />
+      </viewpoint>
+      <simple-id uuid='{5C721339-9F75-428F-8CAB-937C87084BC1}' />
+    </window>
+    <window class='worksheet' name='Active Contributors'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{764B991D-9F5E-4079-95DB-01F3AFC49A9E}' />
+    </window>
+    <window class='worksheet' name='Backlog Flow'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <zoom type='entire-view' />
+      </viewpoint>
+      <simple-id uuid='{355E97DC-0F3B-4154-B409-E4863579A71D}' />
+    </window>
+    <window class='worksheet' name='Backlog by Ecosystem'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card mode='compact' param='[Parameters].[Parameter 1822769710825561]' type='parameter' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <zoom type='entire-view' />
+      </viewpoint>
+      <simple-id uuid='{9CE9C900-2693-47CD-8DEF-3CBFD757ACF6}' />
+    </window>
+    <window class='worksheet' name='Top backlog'>
+      <cards>
+        <edge name='left'>
+          <strip size='287'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+            <card type='measures' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card pane-specification-id='0' param='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[none:health_tier:nk]' type='color' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <zoom type='entire-view' />
+      </viewpoint>
+      <simple-id uuid='{7EEAC4FE-0A34-4DF9-8C73-19A71BB4CA21}' />
+    </window>
+    <window class='dashboard' maximized='true' name='Health Drivers'>
+      <viewpoints>
+        <viewpoint name='90th Percentile'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Concentration Histogram'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Items Opened'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Lowest Scoring Repos'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Median First Response'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Merge Time '>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Opened vs Merged'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Prs Merged'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Repo no activity'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Response trend'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Risk Scatter'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Unresponded Share'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Unresponded trend'>
+          <zoom type='entire-view' />
+        </viewpoint>
+      </viewpoints>
+      <active id='23' />
+      <simple-id uuid='{30D87972-ABCC-4F74-BCB5-DF6F8B76052F}' />
+    </window>
   </windows>
   <datagraph>
     <graph>
@@ -10943,14 +12105,51 @@
         <default-execution-subgraph-guid value='c504912a-10e6-43a7-adee-fdff49d0748e' />
       </properties>
       <node-execution-subgraphs>
+        <pair execution-subgraph-guid='c504912a-10e6-43a7-adee-fdff49d0748e' node-guid='05d04953-4ef7-4863-9c5d-c4158871e9f0' />
         <pair execution-subgraph-guid='c504912a-10e6-43a7-adee-fdff49d0748e' node-guid='c3659db3-d7ac-4b7b-80ce-1a8499da1b99' />
+        <pair execution-subgraph-guid='c504912a-10e6-43a7-adee-fdff49d0748e' node-guid='1064533a-31a4-4196-a3b8-d5877c3490d9' />
+        <pair execution-subgraph-guid='c504912a-10e6-43a7-adee-fdff49d0748e' node-guid='16b21b0d-0101-4cc1-8c60-a30a46ae62ee' />
         <pair execution-subgraph-guid='c504912a-10e6-43a7-adee-fdff49d0748e' node-guid='77f1be84-41d1-471a-9436-92c02d60f763' />
+        <pair execution-subgraph-guid='c504912a-10e6-43a7-adee-fdff49d0748e' node-guid='bc77cbc5-7ae0-4e19-8bbf-2eebb510805d' />
+        <pair execution-subgraph-guid='c504912a-10e6-43a7-adee-fdff49d0748e' node-guid='2998ab96-1323-4730-9751-822f58509746' />
+        <pair execution-subgraph-guid='c504912a-10e6-43a7-adee-fdff49d0748e' node-guid='ae21fcaf-cfd6-4d01-a05b-93348e2de503' />
+        <pair execution-subgraph-guid='c504912a-10e6-43a7-adee-fdff49d0748e' node-guid='05eb2e15-0245-4277-b80c-aec6004565b3' />
+        <pair execution-subgraph-guid='c504912a-10e6-43a7-adee-fdff49d0748e' node-guid='05b25caf-1514-4658-9092-a2f828b6b8f8' />
+        <pair execution-subgraph-guid='c504912a-10e6-43a7-adee-fdff49d0748e' node-guid='87307200-19f3-4fde-a8fa-a5a0ea237d0c' />
+        <pair execution-subgraph-guid='c504912a-10e6-43a7-adee-fdff49d0748e' node-guid='f35828e5-202c-4230-92c1-731304bdcc0f' />
+        <pair execution-subgraph-guid='c504912a-10e6-43a7-adee-fdff49d0748e' node-guid='e1176ff3-ea80-4bd2-a193-b37eaee3564b' />
+        <pair execution-subgraph-guid='c504912a-10e6-43a7-adee-fdff49d0748e' node-guid='8897d509-e749-4fc7-b14a-7ab7383a0735' />
+        <pair execution-subgraph-guid='c504912a-10e6-43a7-adee-fdff49d0748e' node-guid='c5c90a2a-35ab-41ec-966c-6ef1263f1c77' />
       </node-execution-subgraphs>
       <nodes>
+        <single-value-field-node fieldname='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[Calculation_1822769711112282]' fieldname-input-guid='c9bd624d-5aec-4bb3-96b8-87106ac82d9d' node-guid='05d04953-4ef7-4863-9c5d-c4158871e9f0' value-output-guid='7bb2350f-64be-41fb-8b48-16239b589c4a' />
         <single-value-field-node fieldname='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[Calculation_1822767533576272]' fieldname-input-guid='c7ecd889-140d-4a88-8a46-31d4059da34f' node-guid='c3659db3-d7ac-4b7b-80ce-1a8499da1b99' value-output-guid='ca45a57b-4929-488f-b916-227e6260fe20' />
+        <dashboard-zone-visibility-node dashboard-identifier='{99714557-9E2F-43D9-BE36-3E7966D4853C}' node-guid='1064533a-31a4-4196-a3b8-d5877c3490d9' visibility-input-guid='722210ef-7ec7-4986-b521-20e24b099244' zone-id='57' />
+        <single-value-field-node fieldname='[federated.14rv57519mnb5y18wf6fs0nw8qaz].[Calculation_1822769711173723]' fieldname-input-guid='8023e4be-c46b-40f7-8b7b-32837035d1b7' node-guid='16b21b0d-0101-4cc1-8c60-a30a46ae62ee' value-output-guid='9a07a4e5-648f-43da-bf51-887a8705c5e7' />
         <dashboard-zone-visibility-node dashboard-identifier='{4EB8130E-ED53-492B-BD9E-67CE115BDA31}' node-guid='77f1be84-41d1-471a-9436-92c02d60f763' visibility-input-guid='0a34bbaa-45ee-40b0-80b4-cee9979c8783' zone-id='57' />
+        <dashboard-zone-visibility-node dashboard-identifier='{99714557-9E2F-43D9-BE36-3E7966D4853C}' node-guid='bc77cbc5-7ae0-4e19-8bbf-2eebb510805d' visibility-input-guid='584d7bf0-42a2-4c97-8601-6222c8cfac84' zone-id='38' />
+        <dashboard-zone-visibility-node dashboard-identifier='{99714557-9E2F-43D9-BE36-3E7966D4853C}' node-guid='ae21fcaf-cfd6-4d01-a05b-93348e2de503' visibility-input-guid='23a4b60b-5f8e-4725-9240-5019149b7f38' zone-id='44' />
+        <dashboard-zone-visibility-node dashboard-identifier='{99714557-9E2F-43D9-BE36-3E7966D4853C}' node-guid='2998ab96-1323-4730-9751-822f58509746' visibility-input-guid='16eabb55-fdbb-46fb-9101-a87d7030be04' zone-id='40' />
+        <dashboard-zone-visibility-node dashboard-identifier='{99714557-9E2F-43D9-BE36-3E7966D4853C}' node-guid='05eb2e15-0245-4277-b80c-aec6004565b3' visibility-input-guid='b164a134-fe07-4de8-8634-b21bb8f595b6' zone-id='59' />
+        <dashboard-zone-visibility-node dashboard-identifier='{99714557-9E2F-43D9-BE36-3E7966D4853C}' node-guid='05b25caf-1514-4658-9092-a2f828b6b8f8' visibility-input-guid='d5ea44ea-852e-4a96-8ee8-02d20fa25ad9' zone-id='33' />
+        <dashboard-zone-visibility-node dashboard-identifier='{99714557-9E2F-43D9-BE36-3E7966D4853C}' node-guid='87307200-19f3-4fde-a8fa-a5a0ea237d0c' visibility-input-guid='61007552-3977-4f79-81cc-30e2dbe652b0' zone-id='47' />
+        <dashboard-zone-visibility-node dashboard-identifier='{99714557-9E2F-43D9-BE36-3E7966D4853C}' node-guid='f35828e5-202c-4230-92c1-731304bdcc0f' visibility-input-guid='fc1e3924-f05c-49ae-8165-ba93e7ff088a' zone-id='54' />
+        <dashboard-zone-visibility-node dashboard-identifier='{99714557-9E2F-43D9-BE36-3E7966D4853C}' node-guid='8897d509-e749-4fc7-b14a-7ab7383a0735' visibility-input-guid='56f789c0-857d-42ef-aa4b-27870d38395a' zone-id='56' />
+        <dashboard-zone-visibility-node dashboard-identifier='{99714557-9E2F-43D9-BE36-3E7966D4853C}' node-guid='e1176ff3-ea80-4bd2-a193-b37eaee3564b' visibility-input-guid='887c568e-c01b-457f-8a7b-3991bcae1e56' zone-id='55' />
+        <dashboard-zone-visibility-node dashboard-identifier='{99714557-9E2F-43D9-BE36-3E7966D4853C}' node-guid='c5c90a2a-35ab-41ec-966c-6ef1263f1c77' visibility-input-guid='e90d5014-b778-41e5-a88e-500eae4904f0' zone-id='58' />
       </nodes>
       <edges>
+        <edge from='7bb2350f-64be-41fb-8b48-16239b589c4a' to='584d7bf0-42a2-4c97-8601-6222c8cfac84' />
+        <edge from='7bb2350f-64be-41fb-8b48-16239b589c4a' to='16eabb55-fdbb-46fb-9101-a87d7030be04' />
+        <edge from='7bb2350f-64be-41fb-8b48-16239b589c4a' to='23a4b60b-5f8e-4725-9240-5019149b7f38' />
+        <edge from='7bb2350f-64be-41fb-8b48-16239b589c4a' to='d5ea44ea-852e-4a96-8ee8-02d20fa25ad9' />
+        <edge from='9a07a4e5-648f-43da-bf51-887a8705c5e7' to='61007552-3977-4f79-81cc-30e2dbe652b0' />
+        <edge from='9a07a4e5-648f-43da-bf51-887a8705c5e7' to='fc1e3924-f05c-49ae-8165-ba93e7ff088a' />
+        <edge from='9a07a4e5-648f-43da-bf51-887a8705c5e7' to='56f789c0-857d-42ef-aa4b-27870d38395a' />
+        <edge from='9a07a4e5-648f-43da-bf51-887a8705c5e7' to='887c568e-c01b-457f-8a7b-3991bcae1e56' />
+        <edge from='9a07a4e5-648f-43da-bf51-887a8705c5e7' to='b164a134-fe07-4de8-8634-b21bb8f595b6' />
+        <edge from='9a07a4e5-648f-43da-bf51-887a8705c5e7' to='722210ef-7ec7-4986-b521-20e24b099244' />
+        <edge from='9a07a4e5-648f-43da-bf51-887a8705c5e7' to='e90d5014-b778-41e5-a88e-500eae4904f0' />
         <edge from='ca45a57b-4929-488f-b916-227e6260fe20' to='0a34bbaa-45ee-40b0-80b4-cee9979c8783' />
       </edges>
       <pin-values />
