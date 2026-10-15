@@ -1,1 +1,17 @@
+name: pipeline-check
 
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -c "import duckdb, pandas, pyarrow, scipy, gspread, dotenv; print('ok')"
