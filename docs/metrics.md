@@ -71,6 +71,7 @@ response time, never separately.
 ### Bug backlog
 **Definition.** Count and age of open issues whose labels normalise to `bug` or
 `regression`.
+Only issues count; pull requests carrying a bug label are excluded. A project that labels only some of its bugs still scores better than it should.
 
 **Label normalisation.** Projects use different vocabularies — "bug",
 "type: bug", "kind/bug", "defect". `seeds/label_map.csv` maps them. Unmapped
@@ -83,6 +84,7 @@ by not labelling.
 ### Contributor retention (cohorts)
 **Definition.** Of the people whose first observed contribution to a repository
 fell in month M, what share contributed again 1, 3 and 6 months later?
+The score uses month 3 only: people active in the third month after their first observed contribution, pooled across cohorts and weighted by cohort size. The cohort table includes every month up to the last complete one (months with no returners count as zero) and excludes the current partial month.
 
 **What counts as a contribution.** Opening an issue or PR, commenting,
 reviewing. **Not** stars, forks or watches — those measure interest, not work,
@@ -101,6 +103,7 @@ definition.
 ### Post-release regression ratio
 **Definition.** Bugs opened in the 14 days after a release, divided by the
 count predicted from the prior 90 days' bug rate.
+Follow-up windows of releases close together overlap, so one bug can fall under several releases and totals are not distinct bugs. The dashboard judges only releases with at least 2 expected bugs.
 
 ```
 expected = bugs_in_prior_90_days × (14 / 90)
@@ -173,9 +176,10 @@ month would otherwise leave those metrics null, and a null percentile rank
 would score the repository as worst — punishing "no data" as if it were "bad
 data".
 
-**Null direction is set per metric.** `bus_factor_50 nulls first` — no merged
-PRs is genuinely concerning. `ttfr_p50_hours desc nulls last` — no issues
-opened is not.
+**Null direction is set per metric.** Bus factor: no merged PRs is genuinely concerning, so null ranks worst. Maintainer activity: no merged PR authors counts as zero and ranks worst. Response time, unanswered share, bug backlog (no bugs recognised in 12 months) and retention (fewer than 100 people in the month-3 cohorts): no usable data scores a neutral 0.5, ranked in its own group so it never takes the best or worst place.
+
+### Maintainer activity
+Distinct authors of pull requests merged in the last 90 days. Zero ranks worst.
 
 ---
 

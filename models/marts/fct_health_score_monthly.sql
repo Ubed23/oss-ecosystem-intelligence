@@ -27,8 +27,7 @@ with base as (
         ttfr_p50_hours,
         unresponded_rate,
         bugs_open_at_month_end,
-        active_contributors,
-        sum(bugs_opened) over (partition by repo_id) as bugs_opened_total
+        active_contributors
     from {{ ref('fct_repo_health_monthly') }}
     where month_start < date_trunc('month', current_date)
 
@@ -51,9 +50,7 @@ ranked as (
         case 
             when unresponded_rate is null then 0.5
             else percent_rank() over (partition by (unresponded_rate is null) order by unresponded_rate desc) end       as unresponded_score,
-        case
-            when bugs_opened_total = 0 then 0.5
-            else percent_rank() over (partition by (bugs_opened_total = 0) order by bugs_open_at_month_end desc) end as bug_backlog_score,
+        percent_rank() over (order by bugs_open_at_month_end desc)             as bug_backlog_score,
         percent_rank() over (order by active_contributors)                     as community_activity_score
     from base
 
