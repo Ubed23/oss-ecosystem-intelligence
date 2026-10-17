@@ -266,6 +266,7 @@ Built in Tableau Public from the Google Sheet. Fixed-size pages, consistent navi
 
 ![Release reliability](docs/images/05-release-reliability.png)
 
+
 ![Engineering operations](docs/images/09-engineering-operations.png)
 
 ## 9. How I checked the work
