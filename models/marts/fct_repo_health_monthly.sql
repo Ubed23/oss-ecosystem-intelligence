@@ -28,7 +28,7 @@ responsiveness as (
         median(response_hours)                                           as ttfr_p50_hours,
         quantile_cont(response_hours, 0.9)                               as ttfr_p90_hours,
         count(*)                                                         as items_opened,
-        sum(case when is_unresponded then 1 else 0 end) * 1.0 / count(*) as unresponded_rate
+        avg(is_unresponded::int)                                         as unresponded_rate
     from {{ ref('stg_issues_prs') }}
     where in_window
     group by 1, 2
@@ -53,7 +53,7 @@ bugs_opened as (
     select
         repo_id,
         date_trunc('month', created_at) as month_start,
-        count(*)                        as bugs_opened
+        count(distinct number)          as bugs_opened
     from {{ ref('int_labeled_issues') }}
     where normalized_label in ('bug', 'regression')
       and created_at >= timestamp '{{ var("analysis_start") }}'
@@ -68,7 +68,7 @@ backlog as (
     select
         s.repo_id,
         s.month_start,
-        count(*) as bugs_open_at_month_end
+        count(distinct b.number) as bugs_open_at_month_end
     from spine s
     join {{ ref('int_labeled_issues') }} b
       on b.repo_id = s.repo_id

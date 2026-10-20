@@ -14,7 +14,8 @@ with releases as (
 
 bugs as (
 
-    select repo_id, created_at
+    -- distinct: an issue carrying two bug labels must count once
+    select distinct repo_id, number, created_at
     from {{ ref('int_labeled_issues') }}
     where normalized_label in ('bug', 'regression')
 
@@ -47,5 +48,8 @@ select
     bugs_after / nullif(
         bugs_baseline * 1.0
         * {{ var('release_window_days') }} / {{ var('release_baseline_days') }}, 0
-    ) as regression_ratio
+    ) as regression_ratio,
+    -- the follow-up window has fully elapsed within the data we hold
+    cast(published_at as date) + {{ var('release_window_days') }}
+        <= (select cast(max(created_at) as date) from {{ ref('stg_issues_prs') }}) as window_complete
 from windowed

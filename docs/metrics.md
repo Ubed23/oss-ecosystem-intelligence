@@ -79,8 +79,11 @@ than inventing a plausible number.
 not counted.
 
 ### Unresponded rate
-Share of items with no maintainer response after **7 days**
-(`response_sla_days`). Reported alongside response time, never separately. When
+Share of items with no maintainer response within **7 days**
+(`response_sla_days`) of creation. Only items older than 7 days are judged, and
+items opened by an OWNER, MEMBER or COLLABORATOR are excluded (nobody is
+expected to reply to themselves). A fixed window for every item keeps old and
+recent months comparable. Reported alongside response time, never separately. When
 pooled across repositories on the dashboard it is weighted by items opened, so
 a repository with three issues does not count as much as one with three
 thousand.

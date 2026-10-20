@@ -103,8 +103,7 @@ TABS = {
         select repo_id, tag_name, cast(published_at as date) as published_at,
                bugs_after, bugs_baseline, round(expected_bugs, 2) as expected_bugs,
                round(regression_ratio, 3) as regression_ratio,
-               cast(cast(published_at as date) + 14 <=
-                    (select cast(max(created_at) as date) from stg_issues_prs) as integer) as window_complete
+               cast(window_complete as integer) as window_complete
         from fct_release_reliability
         order by published_at desc
     """,
@@ -180,7 +179,7 @@ def main() -> None:
     meta = pd.DataFrame([
         {"key": "last_refreshed_utc", "value": pd.Timestamp.now("UTC").strftime("%Y-%m-%d %H:%M")},
         {"key": "repositories", "value": str(len(frames.get("repos", frames[list(frames)[0]])))},
-        {"key": "note", "value": "Rankings are robust to weighting; quartile tiers are not."},
+        {"key": "note", "value": "Scores are percentile ranks among the tracked repos. Tiers are quartiles, so they are relative; see docs/sensitivity_summary.md."},
     ])
     total_cells += meta.size
 

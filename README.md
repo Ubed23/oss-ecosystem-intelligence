@@ -28,7 +28,7 @@ It answers one question: *which of the projects my product depends on are gettin
 12. [Limitations](#12-limitations)
 13. [Run it yourself](#13-run-it-yourself)
 14. [Repository layout](#14-repository-layout)
-15. [Roadmap](#15-roadmap)
+15. [Roadmap: future development](#15-roadmap-future-development)
 
 ---
 
@@ -279,9 +279,9 @@ The score is recomputed under all three weight schemes. Results from the current
 
 | Check | Result |
 |---|---|
-| Spearman rank correlation between the schemes | 0.884, 0.857 and 0.572 (one pair per scheme comparison) |
-| Repos keeping the same quartile tier under all three | **27%** |
-| Critical under **every** weighting | **dask** and **pydantic** |
+| Spearman rank correlation between the schemes | 0.867, 0.866 and 0.576 (one value per pair of schemes) |
+| Repos keeping the same quartile tier under all three | **30%** (9 of 30) |
+| Critical under **every** weighting | **dask**, **dagster**, **pydantic**, **snowflake-connector-python** (see the first limitation below before relying on this) |
 
 **Reading:** rankings broadly agree, but tier labels near the cut-offs are fragile. That is why the dashboard presents the score as one input and calls out only the findings that survive every weighting. Full output: [`docs/sensitivity_summary.md`](docs/sensitivity_summary.md).
 
@@ -312,7 +312,7 @@ Comparing GH Archive events with API items per month showed the archive-to-API r
 
 > These are the statements that held up under the checks above. Anything that depended on a particular weighting is deliberately left out.
 
-- **dask and pydantic rank in the bottom tier under every weighting** tested. They are the clearest candidates for a contingency conversation.
+- **dask, dagster, pydantic and snowflake-connector-python rank in the bottom tier under every weighting** tested. pydantic is the most defensible of these (bus factor 1, 79% of items unanswered). For dask and dagster, part of the result may come from how maintainers are identified (first limitation below), so treat them as candidates to investigate, not conclusions.
 - **Maintainership is concentrated.** Several projects rely on a very small group for the majority of merged PRs (see Maintainer & Risk).
 - **Retention is low everywhere.** Month-3 retention in the pooled cohorts is in the low single digits to roughly ten percent, so the score uses it as a *relative* signal.
 - **Public event archives are not safe as a sole source.** The fidelity collapse and the 2025 payload change both silently corrupt metrics unless you measure the source against a second one.
@@ -330,7 +330,9 @@ Comparing GH Archive events with API items per month showed the archive-to-API r
 I would rather state these than have a reviewer find them.
 
 - **Size bias.** Larger, busier repositories look more concentrated and more loaded simply because they have more traffic.
-- **Unanswered share** counts every item without a maintainer response in 7 days, including maintainer-authored and very recent items. It is a proxy.
+- **Maintainer identification.** A reply counts only if GitHub labels its author OWNER, MEMBER or COLLABORATOR. Maintainers whose organisation membership is private appear as CONTRIBUTOR and are not recognised. Repositories such as dask and dagster show about 97–100% unanswered with almost no maintainer-authored items, which suggests this effect. Fix planned: identify maintainers by who merges pull requests.
+- **Open-bug backlog is a lower bound.** Issues are fetched by last-updated date from 1 Oct 2025, so a bug that is still open but untouched since then is not in the data. Fix planned: a one-off pull of all currently open issues.
+- **Unanswered share** means: no maintainer response within 7 days, for items older than 7 days and not opened by a maintainer. It is a proxy for responsiveness, not a measure of it.
 - **Tiers are quartiles.** They always split roughly 8 / 8 / 7 / 7 and are not absolute judgements.
 - **Percentile ranking stretches small differences.** Retention values of about 1–10% become a full 0–1 spread.
 - **Comment truncation.** Only the first 10 comments and 5 reviews per item are fetched; a late first maintainer reply on a very long thread could be missed.
@@ -413,7 +415,7 @@ Share the Sheet with the service account's `client_email` as Editor, or you will
 │   ├── sensitivity_summary.md
 │   ├── decisions/          ADRs
 │   └── images/             dashboard screenshots
-├── data/raw/               Parquet (git-ignored)
+├── data/raw/               Parquet snapshots (committed so a fresh clone can build)
 ├── warehouse/              DuckDB file (git-ignored)
 └── .github/workflows/      pipeline-check
 ```
@@ -433,9 +435,8 @@ flowchart LR
 
 | Item | Why it matters |
 |---|---|
-| Count each bug once (`count(distinct number)`) | Removes the ~1.85% double count of dual-labelled issues |
-| Narrow unanswered share to external, non-recent items | Stops maintainer-authored and brand-new items inflating the metric |
-| Add an `as_of` variable instead of `current_timestamp` | A rebuild on another day reproduces the same numbers |
+| Identify maintainers by merged pull requests (`mergedBy`) | Fixes the private-membership blind spot |
+| Pull all currently open issues once | Makes the bug backlog a true stock, not a lower bound |
 | Use full-month active contributors | The latest month is partial today |
 | Check comment truncation (first 10 comments, 5 reviews) and paginate where needed | Avoids missing a late first maintainer reply |
 | Save results per repo in the GraphQL pull, with try/except | One failure no longer loses a long run |

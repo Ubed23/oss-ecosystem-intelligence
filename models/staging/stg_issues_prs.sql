@@ -45,9 +45,17 @@ select
         when r.first_response_at >= r.created_at
         then date_diff('hour', r.created_at, r.first_response_at)
     end                                                               as response_hours,
-    r.first_response_at is null
-        and date_diff('day', r.created_at, current_timestamp) > {{ var('response_sla_days') }}
-                                                                      as is_unresponded,
+    -- Unanswered = no maintainer response within the SLA after creation.
+    -- NULL means "not judgeable": the item is still inside its SLA window, or
+    -- it was opened by a maintainer (nobody is expected to reply to themselves).
+    -- Using a fixed window for every item keeps old and new months comparable.
+    case
+        when r.author_association in ('OWNER', 'MEMBER', 'COLLABORATOR') then null
+        when date_diff('day', r.created_at, {{ as_of() }}) <= {{ var('response_sla_days') }} then null
+        when r.first_response_at is null then true
+        when r.first_response_at > r.created_at + interval {{ var('response_sla_days') }} day then true
+        else false
+    end                                                               as is_unresponded,
     r.created_at >= timestamp '{{ var("analysis_start") }}'           as in_window
 from ranked r
 left join {{ ref('bots') }} b on lower(r.author) = lower(b.login)

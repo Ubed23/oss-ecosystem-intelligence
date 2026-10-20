@@ -26,7 +26,7 @@ implausible decline through 2026:
 | 2026-08 |          1,277 |             7,749 |  0.16 |
 
 A 95% fall across projects including pandas, numpy and Airflow is not a real
-change in developer behaviour. The API line stays flat at roughly 7,000 items
+change in developer behaviour. The API line stays flat at between roughly 5,300 and 8,900-items 
 per month across the same period, which isolates the problem to the archive.
 
 GH Archive's own issue tracker documents event fidelity degrading from around

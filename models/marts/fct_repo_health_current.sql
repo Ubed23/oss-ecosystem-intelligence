@@ -25,10 +25,10 @@ recent_response as (
         median(response_hours)                                           as ttfr_p50_hours,
         quantile_cont(response_hours, 0.9)                               as ttfr_p90_hours,
         count(*)                                                         as items_opened_90d,
-        sum(case when is_unresponded then 1 else 0 end) * 1.0 / count(*) as unresponded_rate
+        avg(is_unresponded::int)                                         as unresponded_rate
     from {{ ref('stg_issues_prs') }}
     where in_window
-      and created_at >= current_timestamp - interval 90 day
+      and created_at >= {{ as_of() }} - interval 90 day
     group by 1
 
 ),
@@ -41,7 +41,7 @@ recent_merges as (
         count(distinct author)  as distinct_pr_authors_90d,
         median(time_to_merge_hours) as median_merge_hours
     from {{ ref('int_merged_prs') }}
-    where merged_at >= current_timestamp - interval 90 day
+    where merged_at >= {{ as_of() }} - interval 90 day
     group by 1
 
 ),
@@ -79,7 +79,7 @@ base as (
         coalesce(m.distinct_pr_authors_90d, 0) as distinct_pr_authors_90d,
         m.median_merge_hours,
         g.median_release_gap_days,
-        date_diff('day', g.last_release_at, current_timestamp) as days_since_release,
+        date_diff('day', g.last_release_at, {{ as_of() }}) as days_since_release,
         (
             select case when sum(c.cohort_contributors) >= {{ var('min_retention_sample') }}
                         then sum(c.retained_contributors) * 1.0 / sum(c.cohort_contributors) end

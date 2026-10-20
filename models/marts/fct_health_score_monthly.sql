@@ -42,7 +42,7 @@ ranked as (
         -- higher rank = healthier. Where lower is better the order is flipped.
         -- Nulls are handled per metric, matching fct_repo_health_current:
         -- no merged PRs is genuinely worrying (nulls first = worst); no issues
-        -- opened is not (nulls last on a flipped order = best).
+        -- opened is not (neutral 0.5 when a repo has never opened a bug).
         percent_rank() over (order by bus_factor_50 nulls first)               as bus_factor_score,
         percent_rank() over (order by distinct_pr_authors)                     as maintainer_activity_score,
         case 
