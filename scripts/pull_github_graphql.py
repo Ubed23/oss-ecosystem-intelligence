@@ -61,7 +61,7 @@ FIELDS = """
       author { login }
       authorAssociation
       labels(first: 20) { nodes { name } }
-      comments(first: %d) { nodes { createdAt authorAssociation author { login } } }
+      comments(first: %d) { totalCount nodes { createdAt authorAssociation author { login } } }
 """ % COMMENTS
 
 PR_QUERY = """
@@ -73,7 +73,8 @@ query($owner:String!, $name:String!, $cursor:String) {
       nodes {
         %s
         mergedAt
-        reviews(first:%d) { nodes { createdAt authorAssociation author { login } } }
+        mergedBy { login }
+        reviews(first:%d) { totalCount nodes { createdAt authorAssociation author { login } } }
       }
     }
   }
@@ -153,6 +154,26 @@ def first_maintainer_response(node: dict) -> str | None:
     return min(stamps) if stamps else None
 
 
+def responders(node: dict) -> str:
+    """';'-separated login@timestamp of the first comments/reviews, oldest first.
+
+    The author and bots are left out. Whether a responder is a MAINTAINER is
+    decided later, in dbt (int_maintainers), because GitHub's own
+    authorAssociation label is missing for maintainers whose organisation
+    membership is private. Keeping the raw list lets that decision change
+    without re-pulling anything.
+    """
+    author = (node.get("author") or {}).get("login")
+    entries = []
+    for key in ("comments", "reviews"):
+        for c in (node.get(key) or {}).get("nodes") or []:
+            login = (c.get("author") or {}).get("login")
+            if login and login != author and not is_bot(login):
+                entries.append((c["createdAt"], login))
+    entries.sort()
+    return ";".join(f"{login}@{when}" for when, login in entries[:25])
+
+
 def flatten_item(repo_id: int, full_name: str, kind: str, node: dict) -> dict:
     return {
         "repo_id": repo_id,
@@ -168,6 +189,13 @@ def flatten_item(repo_id: int, full_name: str, kind: str, node: dict) -> dict:
         "author_association": node.get("authorAssociation"),
         "labels": "|".join(n["name"].lower() for n in (node["labels"]["nodes"] or [])),
         "first_response_at": first_maintainer_response(node),
+        # who merged the PR: merging needs write access, so this identifies a
+        # maintainer even when their organisation membership is private
+        "merged_by": (node.get("mergedBy") or {}).get("login"),
+        "responders": responders(node),
+        # totals let us measure how often the first-10 / first-5 limit truncates
+        "comments_total": (node.get("comments") or {}).get("totalCount"),
+        "reviews_total": (node.get("reviews") or {}).get("totalCount"),
     }
 
 
@@ -252,10 +280,8 @@ def main() -> None:
 
     state = read_state()
     deadline = time.time() + args.max_minutes * 60
-    all_items: list[dict] = []
-    all_contribs: list[dict] = []
-    done = incomplete = 0
-
+    done = incomplete = failed = 0
+    run_stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H%M")
 
     for _, repo in repos.iterrows():
         key = repo["repo_full_name"]
@@ -272,20 +298,27 @@ def main() -> None:
         started = datetime.now(timezone.utc)
         print(f"{key:<45} since {since:%Y-%m-%d}")
 
-        pr_i, pr_c, pr_ok = pull_connection("pr", PR_QUERY, "pullRequests",
-                                            repo, token, since, deadline)
-        is_i, is_c, is_ok = pull_connection("issue", ISSUE_QUERY, "issues",
-                                            repo, token, since, deadline)
+        # One bad repo (network error, GraphQL error) must not throw away the
+        # repos already fetched, so each repo is saved as soon as it finishes.
+        try:
+            pr_i, pr_c, pr_ok = pull_connection("pr", PR_QUERY, "pullRequests",
+                                                repo, token, since, deadline)
+            is_i, is_c, is_ok = pull_connection("issue", ISSUE_QUERY, "issues",
+                                                repo, token, since, deadline)
+        except Exception as exc:                       # noqa: BLE001
+            failed += 1
+            print(f"    FAILED: {exc!r} - watermark unchanged, continuing with the next repo")
+            continue
 
-        all_items += pr_i + is_i
-        all_contribs += pr_c + is_c
         print(f"    {len(pr_i):>5} PRs  {len(is_i):>5} issues  "
               f"{len(pr_c) + len(is_c):>6} contributions")
+        save_rows(run_stamp, key, pr_i + is_i, pr_c + is_c)
 
         # Only advance the watermark when BOTH connections finished. Advancing
         # on partial success would permanently skip whatever was not fetched.
         if pr_ok and is_ok:
             state[key] = started.isoformat()
+            write_state(state)
             done += 1
         else:
             incomplete += 1
@@ -293,8 +326,15 @@ def main() -> None:
             if time.time() > deadline:
                 break
 
-    partition = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H%M")
-    for name, rows in (("issues_prs", all_items), ("contributions", all_contribs)):
+    print(f"\nrepos complete {done} | incomplete {incomplete} | failed {failed}")
+    if incomplete or failed:
+        print("Re-run the same command in an hour; watermarks resume where this stopped.")
+
+
+def save_rows(stamp: str, repo_name: str, items: list, contribs: list) -> None:
+    """Write one repo's rows as their own Parquet partition."""
+    suffix = repo_name.replace("/", "_")
+    for name, rows in (("issues_prs", items), ("contributions", contribs)):
         if not rows:
             continue
         df = pd.DataFrame(rows)
@@ -305,15 +345,10 @@ def main() -> None:
                 subset=["repo_id", "kind", "number"], keep="last")
         else:
             df = df.drop_duplicates()
-        out = RAW / name / f"dt={partition}" / "part-0.parquet"
+        out = RAW / name / f"dt={stamp}_{suffix}" / "part-0.parquet"
         out.parent.mkdir(parents=True, exist_ok=True)
         df.to_parquet(out, index=False)
-        print(f"saved {len(df):>7} rows -> {out.relative_to(ROOT)}")
-
-    write_state(state)
-    print(f"\nrepos complete {done} | incomplete {incomplete}")
-    if incomplete:
-        print("Re-run the same command in an hour; watermarks resume where this stopped.")
+        print(f"    saved {len(df):>6} rows -> {out.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

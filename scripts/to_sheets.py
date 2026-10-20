@@ -54,6 +54,8 @@ TABS = {
                round(retention_m3, 3) as retention_m3,
                median_release_gap_days, days_since_release,
                cast(is_dormant as integer) as is_dormant,
+               cast(has_bug_labels as integer) as has_bug_labels,
+               round(bug_label_share, 3) as bug_label_share,
                scorecard_overall, check_maintained, has_scorecard,
                -- component ranks drive the adjustable-weight parameters in Tableau
                round(bus_factor_score, 4)            as bus_factor_score,

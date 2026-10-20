@@ -26,9 +26,16 @@ ranked as (
         author_association,
         coalesce(labels, '')                        as labels,
         first_response_at,
+        cast(merged_by as varchar)                  as merged_by,
+        cast(responders as varchar)                 as responders,
+        cast(comments_total as bigint)              as comments_total,
+        cast(reviews_total as bigint)               as reviews_total,
         row_number() over (
             partition by repo_id, kind, number
-            order by updated_at desc
+            -- ties (same updated_at) prefer the richer row: one pulled with the
+            -- responder list and merger identity beats an older or lighter one
+            order by updated_at desc, (responders is not null) desc,
+                     (merged_by is not null) desc, comments_total desc nulls last
         )                                           as rn
     from src
     where author is not null
@@ -37,25 +44,8 @@ ranked as (
 
 select
     r.* exclude (rn),
-    -- A response before creation is not a real response time. It happens when
-    -- an issue is transferred between repositories (comments survive, createdAt
-    -- is reset) or converted from a discussion. Null it out rather than letting
-    -- a negative value drag the median down.
-    case
-        when r.first_response_at >= r.created_at
-        then date_diff('hour', r.created_at, r.first_response_at)
-    end                                                               as response_hours,
-    -- Unanswered = no maintainer response within the SLA after creation.
-    -- NULL means "not judgeable": the item is still inside its SLA window, or
-    -- it was opened by a maintainer (nobody is expected to reply to themselves).
-    -- Using a fixed window for every item keeps old and new months comparable.
-    case
-        when r.author_association in ('OWNER', 'MEMBER', 'COLLABORATOR') then null
-        when date_diff('day', r.created_at, {{ as_of() }}) <= {{ var('response_sla_days') }} then null
-        when r.first_response_at is null then true
-        when r.first_response_at > r.created_at + interval {{ var('response_sla_days') }} day then true
-        else false
-    end                                                               as is_unresponded,
+    -- Response time and unanswered flags are derived in int_item_responses,
+    -- because they need to know who the maintainers are (int_maintainers).
     r.created_at >= timestamp '{{ var("analysis_start") }}'           as in_window
 from ranked r
 left join {{ ref('bots') }} b on lower(r.author) = lower(b.login)

@@ -6,7 +6,7 @@ with last_month as (
 cohort_size as (
     select repo_id, cohort_month, count(distinct actor) as cohort_contributors
     from {{ ref('int_first_contribution') }}
-    where cohort_month >= timestamp '{{ var("analysis_start") }}'
+    where cohort_month >= timestamp '{{ var("first_cohort_month") }}'
     group by 1, 2
 ),
 

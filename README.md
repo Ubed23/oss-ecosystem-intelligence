@@ -67,6 +67,7 @@ flowchart LR
         P2["pull_releases.py"]
         P3["pull_scorecard.py"]
         P4["pull_gharchive.py<br/>dry-run + byte cap"]
+    P5["pull_open_issues.py<br/>one-off: every open issue"]
     end
 
     RAW[("Parquet files<br/>data/raw/")]
@@ -75,7 +76,7 @@ flowchart LR
         STG["staging<br/>clean, dedupe, drop bots"]
         INT["intermediate<br/>bus factor, merged PRs,<br/>labelled issues, first contribution"]
         MART["marts<br/>facts and dimension"]
-        TST["44 nodes in the build,<br/>including data tests"]
+        TST["50 nodes in the build,<br/>including data tests"]
     end
 
     SHEET[("Google Sheet<br/>oss-intel-marts")]
@@ -85,6 +86,7 @@ flowchart LR
     REST --> P2 --> RAW
     OSSF --> P3 --> RAW
     BQ --> P4 --> RAW
+    GQL --> P5 --> RAW
     RAW --> STG --> INT --> MART --> TST
     MART -->|"scripts/to_sheets.py"| SHEET --> TAB
 ```
@@ -137,6 +139,9 @@ flowchart LR
         i2["int_bus_factor"]
         i3["int_labeled_issues"]
         i4["int_first_contribution"]
+        i5["int_maintainers"]
+        i6["int_item_responses"]
+        i7["int_bug_label_coverage"]
     end
 
     subgraph MARTS["Marts"]
@@ -154,16 +159,22 @@ flowchart LR
     s1 --> i3
     label_map --> i3
     s2 --> i4
+    s1 --> i5 --> i6
+    s1 --> i6
+    i3 --> i7
+    dim --> i7
     repos --> dim
     s4 --> dim
 
     i2 --> m1
     i1 --> m1
     i3 --> m1
+    i6 --> m1
     s2 --> m1
     dim --> m1
 
     m1 --> m2
+    i7 --> m2
     score_weights --> m2
 
     i4 --> m4
@@ -176,6 +187,8 @@ flowchart LR
     s5 --> m6
 
     m1 --> m3
+    i6 --> m3
+    i7 --> m3
     m4 --> m3
     i1 --> m3
     s1 --> m3
@@ -204,9 +217,9 @@ Full definitions, null handling and caveats are in [`docs/metrics.md`](docs/metr
 |---|---|---|
 | **Bus factor** | Fewest authors whose merged PRs make up at least 50% of merged PRs | Yes |
 | **Maintainer activity** | Distinct merged-PR authors, trailing 90 days | Yes |
-| **Response time** | Time to first comment or review by an owner, member or collaborator who is not the author | Yes |
-| **Unanswered share** | Share of items with no maintainer response inside a 7-day SLA | Yes |
-| **Bug backlog** | Open bug issues at month end (labels normalised through `label_map`) | Yes |
+| **Response time** | Time to first comment or review by a maintainer who is not the author. A maintainer is anyone who merged a PR in the repo or is labelled owner, member or collaborator ([ADR 0004](docs/decisions/0004-maintainer-identification.md)) | Yes |
+| **Unanswered share** | Share of items older than 7 days, not opened by a maintainer, with no maintainer response within 7 days of creation | Yes |
+| **Bug backlog** | Open bug issues at month end (labels normalised through `label_map`). Scored only where at least 10% of a repo's issues carry a bug label, otherwise neutral 0.5 | Yes |
 | **Contributor retention** | Share of a first-time-contributor cohort active again in month 3 (pooled, used only when the sample is at least 100 people) | Yes |
 | **Post-release regression ratio** | Bugs in the 14 days after a release vs. the 90-day baseline; judged only when at least 2 were expected and the window is complete | No (release page) |
 | **Release cadence** | Median gap between releases, days since last release | No (context) |
@@ -215,7 +228,7 @@ Details worth knowing:
 
 - Bots are removed at source (`seeds/bots.csv` plus a login heuristic).
 - A contribution is **work**: opening an issue or PR, commenting, or reviewing. Stars and forks are interest, not work, and are excluded.
-- Retention is a left-truncated cohort triangle that measures *activity in month N*, not survival. The current partial month is excluded.
+- Retention is a left-truncated cohort triangle that measures *activity in month N*, not survival. The current partial month and the first month of data (everyone active in Oct 2025, not only newcomers) are excluded.
 
 ![Contributor retention](docs/images/04-contributor-sustainability.png)
 
@@ -242,7 +255,7 @@ Design choices, each deliberate:
 
 ![Health score dashboard](docs/images/08-health-score.png)
 
-*Current health score and tier per repository, with the 6-month change. Tiers are quartile-based, so read them as relative standing.*
+*How each repository's score is built from the six components, with adjustable weights and the shift against the balanced weighting. Scores are ranks among the 30 repositories, so read them as relative standing.*
 
 ## 8. The dashboard
 
@@ -256,16 +269,14 @@ Built in Tableau Public from the Google Sheet. Fixed-size pages, consistent navi
 | Engineering Operations | How work flows through each repo? | `docs/images/09-engineering-operations.png`|
 | Bug Backlog | Which projects are accumulating open bugs? | `docs/images/03-bug-backlog.png` |
 | Contributor Sustainability | Do new contributors stay? | `docs/images/04-contributor-sustainability.png` |
-| Release Reliability | Do releases precede a bug spike? | `docs/images/05-release-reliability.png` |
+| Releases & Quality | Do releases precede a bug spike? | `docs/images/05-release-reliability.png` |
 | Data Source Validation | Can the underlying data be trusted? | `docs/images/06-source-fidelity.png` |
-| Data Sources & Methodology | How is everything computed and what are the caveats? | `docs/images/07-methodology.png` |
 
 ![Maintainer and risk](docs/images/02-maintainer-risk.png)
 
 ![Bug backlog](docs/images/03-bug-backlog.png)
 
 ![Release reliability](docs/images/05-release-reliability.png)
-
 
 ![Engineering operations](docs/images/09-engineering-operations.png)
 
@@ -279,9 +290,9 @@ The score is recomputed under all three weight schemes. Results from the current
 
 | Check | Result |
 |---|---|
-| Spearman rank correlation between the schemes | 0.867, 0.866 and 0.576 (one value per pair of schemes) |
-| Repos keeping the same quartile tier under all three | **30%** (9 of 30) |
-| Critical under **every** weighting | **dask**, **dagster**, **pydantic**, **snowflake-connector-python** (see the first limitation below before relying on this) |
+| Spearman rank correlation between the schemes | 0.876, 0.883 and 0.618 (one value per pair of schemes) |
+| Repos keeping the same quartile tier under all three | **27%** (8 of 30) |
+| Critical under **every** weighting | **dask**, **pydantic**, **ibis**, **snowflake-connector-python** |
 
 **Reading:** rankings broadly agree, but tier labels near the cut-offs are fragile. That is why the dashboard presents the score as one input and calls out only the findings that survive every weighting. Full output: [`docs/sensitivity_summary.md`](docs/sensitivity_summary.md).
 
@@ -306,13 +317,13 @@ Comparing GH Archive events with API items per month showed the archive-to-API r
 
 ### 9.4 Automated tests
 
-`dbt build` runs **44 nodes with 0 failures** (seeds, models, and tests), including singular tests such as `assert_cohort_grid_valid`.
+`dbt build` runs **50 nodes with 0 failures** (seeds, models and tests), including singular tests such as `assert_cohort_grid_valid`, `assert_weights_sum_to_one` and `assert_tiers_are_quartiles`.
 
 ## 10. Key findings
 
 > These are the statements that held up under the checks above. Anything that depended on a particular weighting is deliberately left out.
 
-- **dask, dagster, pydantic and snowflake-connector-python rank in the bottom tier under every weighting** tested. pydantic is the most defensible of these (bus factor 1, 79% of items unanswered). For dask and dagster, part of the result may come from how maintainers are identified (first limitation below), so treat them as candidates to investigate, not conclusions.
+- **dask, pydantic, ibis and snowflake-connector-python rank in the bottom tier under every weighting** tested. pydantic is the clearest case (bus factor 1, 71% of items without a maintainer reply in 7 days). dask and snowflake-connector-python show 95–98% unanswered, which may partly reflect how maintainers are recognised, so treat them as candidates to investigate.
 - **Maintainership is concentrated.** Several projects rely on a very small group for the majority of merged PRs (see Maintainer & Risk).
 - **Retention is low everywhere.** Month-3 retention in the pooled cohorts is in the low single digits to roughly ten percent, so the score uses it as a *relative* signal.
 - **Public event archives are not safe as a sole source.** The fidelity collapse and the 2025 payload change both silently corrupt metrics unless you measure the source against a second one.
@@ -323,6 +334,7 @@ Comparing GH Archive events with API items per month showed the archive-to-API r
 |---|---|
 | [0001](docs/decisions/0001-two-source-architecture.md) | Two sources: the API for authorship, merge, labels and responses; GH Archive for breadth and history |
 | [0002](docs/decisions/0002-gharchive-fidelity.md) | Demote GH Archive after measured fidelity collapse |
+| [0004](docs/decisions/0004-maintainer-identification.md) | Identify maintainers by merged pull requests, not only GitHub's label |
 | [0003](docs/decisions/0003-scorecard-source.md) | Read OpenSSF Scorecard through the REST API (26 of 30 repos covered) instead of scanning the BigQuery table (85 GB per scan) |
 
 ## 12. Limitations
@@ -330,14 +342,14 @@ Comparing GH Archive events with API items per month showed the archive-to-API r
 I would rather state these than have a reviewer find them.
 
 - **Size bias.** Larger, busier repositories look more concentrated and more loaded simply because they have more traffic.
-- **Maintainer identification.** A reply counts only if GitHub labels its author OWNER, MEMBER or COLLABORATOR. Maintainers whose organisation membership is private appear as CONTRIBUTOR and are not recognised. Repositories such as dask and dagster show about 97–100% unanswered with almost no maintainer-authored items, which suggests this effect. Fix planned: identify maintainers by who merges pull requests.
-- **Open-bug backlog is a lower bound.** Issues are fetched by last-updated date from 1 Oct 2025, so a bug that is still open but untouched since then is not in the data. Fix planned: a one-off pull of all currently open issues.
+- **Maintainer identification.** A maintainer is anyone who merged a pull request in the repo or is labelled owner, member or collaborator (ADR 0004). Data pulled before the `mergedBy` change has no merger identity and uses the label rule alone, which misses maintainers whose organisation membership is private. *Remove this note once the full re-pull has been run.*
+- **Open-bug backlog.** The normal pull fetches items updated since 1 Oct 2025, so `pull_open_issues.py` adds every older issue that is still open. Until it has been run the backlog is a lower bound. *Remove this note once it has been run.*
 - **Unanswered share** means: no maintainer response within 7 days, for items older than 7 days and not opened by a maintainer. It is a proxy for responsiveness, not a measure of it.
 - **Tiers are quartiles.** They always split roughly 8 / 8 / 7 / 7 and are not absolute judgements.
 - **Percentile ranking stretches small differences.** Retention values of about 1–10% become a full 0–1 spread.
-- **Comment truncation.** Only the first 10 comments and 5 reviews per item are fetched; a late first maintainer reply on a very long thread could be missed.
+- **Comment truncation.** Only the first 10 comments and 5 reviews per item are fetched; a late first maintainer reply on a very long thread could be missed. `comments_total` is stored so the truncation rate can be measured.
 - **Retention is left-truncated** and measures activity, not survival.
-- **Bug counts** use label normalisation; an issue carrying two bug labels can be counted twice (measured at about 1.85%).
+- **Bug labels.** Counts depend on each project's labelling. Repos where under 10% of issues carry a bug label (duckdb, requests, seaborn, xgboost, matplotlib, python-bigquery) get a neutral backlog score instead of a good one, but their counts are still not comparable with other projects'.
 - **Direct pushes are invisible.** Work committed without a PR is not seen.
 - **Refresh is manual today.** Run `dbt build` and `to_sheets.py`; a scheduled job is on the roadmap.
 - **Public data only.** No internal incident, dependency-usage or revenue data.
@@ -372,6 +384,7 @@ On Windows, if numerical libraries misbehave, set `$env:OPENBLAS_NUM_THREADS="1"
 ```bash
 python scripts/pull_github_graphql.py --since 2025-10-01   # backfill, resumable
 python scripts/pull_github_graphql.py                      # daily increment
+python scripts/pull_open_issues.py                        # one-off: every older issue still open
 python scripts/pull_releases.py
 python scripts/pull_scorecard.py
 ```
@@ -408,6 +421,7 @@ Share the Sheet with the service account's `client_email` as Editor, or you will
 │   ├── intermediate/       int_*   (bus factor, merged PRs, labelled issues, first contribution)
 │   └── marts/              dim_repo, fct_*   (what Tableau reads)
 ├── tests/                  singular data tests
+├── macros/                 as_of() - the fixed reference date for every window
 ├── scripts/                ingestion, backtest, sensitivity, to_sheets
 ├── docs/
 │   ├── metrics.md          every definition and caveat
@@ -435,15 +449,9 @@ flowchart LR
 
 | Item | Why it matters |
 |---|---|
-| Identify maintainers by merged pull requests (`mergedBy`) | Fixes the private-membership blind spot |
-| Pull all currently open issues once | Makes the bug backlog a true stock, not a lower bound |
-| Use full-month active contributors | The latest month is partial today |
-| Check comment truncation (first 10 comments, 5 reviews) and paginate where needed | Avoids missing a late first maintainer reply |
-| Save results per repo in the GraphQL pull, with try/except | One failure no longer loses a long run |
-| Handle deleted ("ghost") authors explicitly | Currently dropped silently |
+| Handle deleted ("ghost") authors explicitly | 89 of about 111,000 pulled items have no author and are dropped |
 | Declare `sources.yml` for the raw Parquet files | Makes lineage and freshness checks complete |
-| More tests: weights sum to 1, cohort grid uniqueness, score within 0–100 | Catches silent regressions like the one that hit `main` once |
-| Remove debugging scripts and temporary CSVs from `docs/` | A cleaner repository |
+| Measure and, where needed, paginate comment truncation using `comments_total` | Avoids missing a late first maintainer reply |
 
 ### 15.2 Next: automation
 

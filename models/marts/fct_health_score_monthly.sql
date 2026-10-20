@@ -28,9 +28,10 @@ with base as (
         unresponded_rate,
         bugs_open_at_month_end,
         active_contributors,
-        sum(bugs_opened) over (partition by repo_id) as bugs_opened_total
+        c.has_bug_labels
     from {{ ref('fct_repo_health_monthly') }}
-    where month_start < date_trunc('month', current_date)
+    join {{ ref('int_bug_label_coverage') }} c using (repo_id)
+    where month_start < date_trunc('month', cast({{ as_of() }} as date))
 
 ),
 
@@ -42,7 +43,7 @@ ranked as (
         -- higher rank = healthier. Where lower is better the order is flipped.
         -- Nulls are handled per metric, matching fct_repo_health_current:
         -- no merged PRs is genuinely worrying (nulls first = worst); no issues
-        -- opened is not (neutral 0.5 when a repo has never opened a bug).
+        -- opened is not (neutral 0.5 when a repo does not use a bug label).
         percent_rank() over (order by bus_factor_50 nulls first)               as bus_factor_score,
         percent_rank() over (order by distinct_pr_authors)                     as maintainer_activity_score,
         case 
@@ -52,8 +53,8 @@ ranked as (
             when unresponded_rate is null then 0.5
             else percent_rank() over (partition by (unresponded_rate is null) order by unresponded_rate desc) end       as unresponded_score,
         case
-            when bugs_opened_total = 0 then 0.5
-            else percent_rank() over (partition by (bugs_opened_total = 0) order by bugs_open_at_month_end desc) end as bug_backlog_score,
+            when not has_bug_labels then 0.5
+            else percent_rank() over (partition by has_bug_labels order by bugs_open_at_month_end desc) end as bug_backlog_score,
         percent_rank() over (order by active_contributors)                     as community_activity_score
     from base
 

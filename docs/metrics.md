@@ -53,8 +53,17 @@ concerning.
 
 ### Time to first response (P50 / P90)
 **Definition.** Hours from an issue or PR being opened to the first comment or
-review by an OWNER, MEMBER or COLLABORATOR who is **not** the person who
+review by a **maintainer** of that repository who is **not** the person who
 opened it.
+
+**Who is a maintainer.** Anyone who has merged a pull request in the repository
+(merging needs write access), plus anyone GitHub labels OWNER, MEMBER or
+COLLABORATOR on something they opened (`int_maintainers`). GitHub's label alone
+is not enough: it only shows OWNER/MEMBER for people whose organisation
+membership is public, so a core maintainer with private membership appears as
+CONTRIBUTOR and would otherwise never count as having replied. Merger identity
+(`merged_by`) exists only in data pulled after the `mergedBy` change; older rows
+use the label rule alone until they are re-pulled (ADR 0004).
 
 **Why exclude the author.** A maintainer opening their own issue and commenting
 on it would otherwise record a response time near zero and drag the project's
@@ -81,8 +90,8 @@ not counted.
 ### Unresponded rate
 Share of items with no maintainer response within **7 days**
 (`response_sla_days`) of creation. Only items older than 7 days are judged, and
-items opened by an OWNER, MEMBER or COLLABORATOR are excluded (nobody is
-expected to reply to themselves). A fixed window for every item keeps old and
+items opened by a maintainer (see above) are excluded (nobody is expected to
+reply to themselves). A fixed window for every item keeps old and
 recent months comparable. Reported alongside response time, never separately. When
 pooled across repositories on the dashboard it is weighted by items opened, so
 a repository with three issues does not count as much as one with three
@@ -103,11 +112,17 @@ deliberately not mapped.
 
 **Blind spot.** Counts depend on each project's own labelling. A project that
 labels only some of its bugs scores better than it should, and a project that
-labels none shows zero. A repository with no recognised bug opened in the 12
-months scores a neutral 0.5 on this component, never the best score. At the
-time of writing that applies to duckdb, requests and python-bigquery
-(archived); seaborn recorded one. Compare a repository with itself over time,
-not with other repositories.
+labels none shows zero. A repository scores the backlog only if at least 10% of
+its issues in the window carry a recognised bug label (`min_bug_label_share`);
+below that it scores a neutral 0.5, never the best score. At the time of writing
+that applies to duckdb, requests, python-bigquery (archived), seaborn, xgboost
+and matplotlib. Compare a repository with itself over time, not with other
+repositories.
+
+**Open issues, however old.** The backlog is a stock: every bug still open
+counts, however old. The normal pull only fetches items updated since
+2025-10-01, so `scripts/pull_open_issues.py` adds every currently open issue
+created before that date. Without it the backlog would be a lower bound.
 
 ### Contributor retention (cohorts)
 **Definition.** Of the people whose first observed contribution to a repository
@@ -135,8 +150,9 @@ because a rate from a handful of people is noise.
 
 **Left truncation.** "First contribution" means *first observed since
 2025-10-01*, not first ever. Someone who contributed in 2019 and returned last
-month is counted as a newcomer. This inflates early cohort sizes and is stated
-on the dashboard.
+month is counted as a newcomer. The first month of data (Oct 2025) contains
+everyone active that month, so that cohort is left out (`first_cohort_month`);
+later cohorts are less affected but still include some returning people.
 
 **Scope change.** Contributions now come from the GraphQL API rather than GH
 Archive (ADR 0002), so direct pushes are no longer counted. Narrower, but for
@@ -238,15 +254,17 @@ they are brittle: a small change in weights moves repositories across a
 quartile boundary.
 
 **Trailing 90 days for the current snapshot.** Responsiveness and merge
-activity use a trailing 90-day window ending at the build time, not the latest
-calendar month. A quiet month would otherwise leave those metrics null. As a
-consequence, the same data rebuilt on a different day gives slightly different
-scores.
+activity use a trailing 90-day window ending at `as_of` (set in
+`dbt_project.yml`, just after the newest data pulled), not the latest calendar
+month. A quiet month would otherwise leave those metrics null. Because `as_of`
+is fixed, rebuilding on another day gives identical numbers; update it after
+each data refresh. Open bugs and active contributors in the snapshot are read
+from the last complete month, never the partial current one.
 
 **Null direction is set per metric.** Bus factor: no merged PRs is genuinely
 concerning, so null ranks worst. Maintainer activity: no merged PR authors
 counts as zero and ranks worst. Response time, unanswered share, bug backlog
-(no bugs recognised in 12 months) and retention (fewer than 100 people in the
+(fewer than 10% of issues carry a bug label) and retention (fewer than 100 people in the
 month-3 cohorts): no usable data scores a neutral 0.5, ranked in its own group
 so it never takes the best or worst place. The reason is the same in every
 case: "no data" must not be scored as if it were "good data" or "bad data".
@@ -339,3 +357,4 @@ regenerated on every run, so the figures are kept there and not repeated here.
 - ADR 0001 — two ingestion sources after the October 2025 Events API change
 - ADR 0002 — GH Archive demoted to historical source after fidelity collapse
 - ADR 0003 — Scorecard via REST rather than BigQuery, on cost grounds
+- ADR 0004 — maintainers identified by merged pull requests, not only GitHub's label

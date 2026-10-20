@@ -18,6 +18,13 @@ vars:
   # Reference "now" for all time windows. Set to just after the newest data pulled.
   as_of: "2026-10-02 17:00:00+00:00"
   response_sla_days: 7
+  # A repo's bug backlog is scored only if at least this share of its issues in
+  # the window carry a bug label. Below it, the project probably does not use
+  # the label, and a tiny count would rank as "best" for the wrong reason.
+  min_bug_label_share: 0.10
+  # First cohort used for retention. The first month of data (Oct 2025) holds
+  # everyone active that month, not only newcomers, so it is left out.
+  first_cohort_month: "2025-11-01"
   release_window_days: 14
   release_baseline_days: 90
   min_retention_sample: 100

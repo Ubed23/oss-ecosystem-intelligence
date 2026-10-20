@@ -29,7 +29,7 @@ responsiveness as (
         quantile_cont(response_hours, 0.9)                               as ttfr_p90_hours,
         count(*)                                                         as items_opened,
         avg(is_unresponded::int)                                         as unresponded_rate
-    from {{ ref('stg_issues_prs') }}
+    from {{ ref('int_item_responses') }}
     where in_window
     group by 1, 2
 

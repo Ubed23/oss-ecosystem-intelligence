@@ -14,7 +14,10 @@
 -- several schemes (sensitivity analysis) and exposed as Tableau parameters.
 with latest as (
 
+    -- last COMPLETE month: the current calendar month is partial, so its
+    -- active contributors and open-bug count would be understated.
     select max(month_start) as month_start from {{ ref('fct_repo_health_monthly') }}
+    where month_start < date_trunc('month', cast({{ as_of() }} as date))
 
 ),
 
@@ -26,7 +29,7 @@ recent_response as (
         quantile_cont(response_hours, 0.9)                               as ttfr_p90_hours,
         count(*)                                                         as items_opened_90d,
         avg(is_unresponded::int)                                         as unresponded_rate
-    from {{ ref('stg_issues_prs') }}
+    from {{ ref('int_item_responses') }}
     where in_window
       and created_at >= {{ as_of() }} - interval 90 day
     group by 1
@@ -66,8 +69,8 @@ base as (
         h.repo_id,
         h.month_start,
         h.bugs_open_at_month_end,
-        coalesce((select sum(m.bugs_opened) from {{ ref('fct_repo_health_monthly') }} m
-            where m.repo_id = h.repo_id), 0) as bugs_opened_total,
+        c.has_bug_labels,
+        c.bug_label_share,
         h.bus_factor_50,
         h.top_author_share,
         h.active_contributors,
@@ -88,6 +91,7 @@ base as (
         ) as retention_m3
     from {{ ref('fct_repo_health_monthly') }} h
     join {{ ref('dim_repo') }} d using (repo_id)
+    join {{ ref('int_bug_label_coverage') }} c using (repo_id)
     left join recent_response r using (repo_id)
     left join recent_merges m  using (repo_id)
     left join release_gap g    using (repo_id)
@@ -111,8 +115,8 @@ ranked as (
             when unresponded_rate is null then 0.5
             else percent_rank() over (partition by (unresponded_rate is null) order by unresponded_rate desc) end      as unresponded_score,
         case 
-            when bugs_opened_total = 0 then 0.5
-            else percent_rank() over (partition by (bugs_opened_total = 0) order by bugs_open_at_month_end desc) end as bug_backlog_score,
+            when not has_bug_labels then 0.5
+            else percent_rank() over (partition by has_bug_labels order by bugs_open_at_month_end desc) end as bug_backlog_score,
         case when retention_m3 is null then 0.5
             else percent_rank() over (partition by (retention_m3 is null) order by retention_m3) end as contributor_retention_score
     from base
