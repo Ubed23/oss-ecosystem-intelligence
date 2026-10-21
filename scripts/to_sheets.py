@@ -32,6 +32,8 @@ import pandas as pd
 from dotenv import load_dotenv
 from google.oauth2.service_account import Credentials
 
+from insights import build_insights   # Key Insights text, built from the marts
+
 load_dotenv()
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -168,7 +170,9 @@ def main() -> None:
         raise SystemExit("warehouse/oss.duckdb not found. Run dbt build first.")
     con = duckdb.connect(str(DB), read_only=True)
 
-    tabs = {args.only: TABS[args.only]} if args.only else TABS
+    if args.only and args.only != "insights" and args.only not in TABS:
+        raise SystemExit(f"unknown tab '{args.only}'. Choose from: {', '.join(list(TABS) + ['insights'])}")
+    tabs = {args.only: TABS[args.only]} if args.only in TABS else ({} if args.only else TABS)
     frames = {}
     total_cells = 0
     for name, sql in tabs.items():
@@ -177,6 +181,13 @@ def main() -> None:
         total_cells += df.size
         if args.dry_run:
             print(f"  {name:<18} {len(df):>6} rows x {len(df.columns):>2} cols")
+
+    # the Key Insights text is computed in Python (insights.py), not in one SQL query
+    if args.only in (None, "insights"):
+        frames["insights"] = build_insights(con)
+        total_cells += frames["insights"].size
+        if args.dry_run:
+            print(f"  {'insights':<18} {len(frames['insights']):>6} rows x {len(frames['insights'].columns):>2} cols")
 
     meta = pd.DataFrame([
         {"key": "last_refreshed_utc", "value": pd.Timestamp.now("UTC").strftime("%Y-%m-%d %H:%M")},
