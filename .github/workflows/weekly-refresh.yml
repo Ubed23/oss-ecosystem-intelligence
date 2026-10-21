@@ -1,0 +1,79 @@
+name: weekly-refresh
+
+# Pull new GitHub data, rebuild and test the warehouse, publish to the Google Sheet.
+# Tableau Public re-reads the Sheet by itself (about every 24 h).
+on:
+  schedule:
+    - cron: "30 3 * * 1"          # Mondays 03:30 UTC (09:00 India)
+  workflow_dispatch:
+    inputs:
+      refresh_open_issues:
+        description: "Also re-pull every older open issue (slow, rarely needed)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write                  # lets the job commit the new raw data
+
+concurrency:
+  group: weekly-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      # the scripts read GITHUB_TOKEN; a secret cannot start with GITHUB_, so it is mapped here.
+      # Use a personal access token (5,000 GraphQL points/hour), not the built-in token (1,000).
+      GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+      GSHEET_ID: ${{ secrets.GSHEET_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Write the Google service-account key (never committed)
+        run: printf '%s' '${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}' > service_account.json
+
+      - name: Pull issues and pull requests (resumes from the watermark)
+        run: python scripts/pull_github_graphql.py --max-minutes 55
+
+      - name: Pull releases
+        run: python scripts/pull_releases.py
+
+      - name: Pull OpenSSF Scorecard (secondary signal, may fail)
+        continue-on-error: true
+        run: python scripts/pull_scorecard.py
+
+      - name: Re-pull older open issues (manual runs only)
+        if: ${{ github.event.inputs.refresh_open_issues == 'true' }}
+        run: python scripts/pull_open_issues.py
+
+      - name: Build and test the warehouse (fails the run if any test fails)
+        run: |
+          mkdir -p warehouse
+          AS_OF="$(date -u +'%Y-%m-%d %H:%M:%S+00:00')"
+          dbt build --profiles-dir . --threads 1 --vars "{as_of: '${AS_OF}'}"
+
+      - name: Publish to the Google Sheet
+        run: python scripts/to_sheets.py
+
+      - name: Save new raw data and watermarks
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/raw state
+          if git diff --cached --quiet; then echo "nothing new to commit"; else
+            git commit -m "chore: weekly data refresh $(date -u +%F)"
+            git push
+          fi
+
+      - name: Remove the key
+        if: always()
+        run: rm -f service_account.json
