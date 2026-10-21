@@ -6,13 +6,13 @@ Recomputed the health score under 3 weighting schemes (balanced, reliability, co
 
 | scheme A | scheme B | Spearman |
 |---|---|---|
-| balanced | reliability | 0.876 |
-| balanced | community | 0.883 |
-| reliability | community | 0.618 |
+| balanced | reliability | 0.899 |
+| balanced | community | 0.919 |
+| reliability | community | 0.716 |
 
 ## Tier stability
 
-**8 of 30 repositories (27%)** keep the same quartile tier under all 3 weightings.
+**12 of 30 repositories (40%)** keep the same quartile tier under all 3 weightings.
 
 **4** are in the bottom tier under every weighting - these are the findings that do not depend on how the score is configured.
 
