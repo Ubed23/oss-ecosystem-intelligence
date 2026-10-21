@@ -290,11 +290,11 @@ The score is recomputed under all three weight schemes. Results from the current
 
 | Check | Result |
 |---|---|
-| Spearman rank correlation between the schemes | 0.876, 0.883 and 0.618 (one value per pair of schemes) |
-| Repos keeping the same quartile tier under all three | **27%** (8 of 30) |
-| Critical under **every** weighting | **dask**, **pydantic**, **ibis**, **snowflake-connector-python** |
+| Spearman rank correlation between the schemes | 0.899 (balanced vs reliability), 0.919 (balanced vs community), 0.716 (reliability vs community) |
+| Repos keeping the same quartile tier under all three | **40%** (12 of 30) |
+| Critical under **every** weighting | **dask**, **pydantic**, **ibis**, **python-bigquery** |
 
-**Reading:** rankings broadly agree, but tier labels near the cut-offs are fragile. That is why the dashboard presents the score as one input and calls out only the findings that survive every weighting. Full output: [`docs/sensitivity_summary.md`](docs/sensitivity_summary.md).
+**Reading:** the ranking moves materially with the weights (the reliability and community schemes agree least, at 0.716), and fewer than half the repositories keep the same tier. The score is therefore one input and not a verdict. That is why the dashboard exposes the weights as parameters and calls out only the findings that survive every weighting. Full output: [`docs/sensitivity_summary.md`](docs/sensitivity_summary.md).
 
 ### 9.2 Backtest (`scripts/backtest.py`, [`docs/backtest_summary.md`](docs/backtest_summary.md))
 
@@ -323,8 +323,8 @@ Comparing GH Archive events with API items per month showed the archive-to-API r
 
 > These are the statements that held up under the checks above. Anything that depended on a particular weighting is deliberately left out.
 
-- **dask, pydantic, ibis and snowflake-connector-python rank in the bottom tier under every weighting** tested. pydantic is the clearest case (bus factor 1, 71% of items without a maintainer reply in 7 days). dask and snowflake-connector-python show 95–98% unanswered, which may partly reflect how maintainers are recognised, so treat them as candidates to investigate.
-- **Maintainership is concentrated.** Several projects rely on a very small group for the majority of merged PRs (see Maintainer & Risk).
+- **dask, pydantic, ibis and python-bigquery rank in the bottom tier under every weighting** tested. pydantic is a clear case (bus factor 1, so one author accounts for the largest share of merged PRs). Treat the others as candidates to investigate rather than verdicts: a low score can partly reflect how maintainers are recognised, or, for python-bigquery, a repository that is winding down.
+- **Maintainership is concentrated.** Half the tracked repositories (15 of 30) have a bus factor of 2 or less, and four (requests, pydantic, seaborn and prefect) have a bus factor of 1 (see Maintainer & Risk).
 - **Retention is low everywhere.** Month-3 retention in the pooled cohorts is in the low single digits to roughly ten percent, so the score uses it as a *relative* signal.
 - **Public event archives are not safe as a sole source.** The fidelity collapse and the 2025 payload change both silently corrupt metrics unless you measure the source against a second one.
 
@@ -342,8 +342,8 @@ Comparing GH Archive events with API items per month showed the archive-to-API r
 I would rather state these than have a reviewer find them.
 
 - **Size bias.** Larger, busier repositories look more concentrated and more loaded simply because they have more traffic.
-- **Maintainer identification.** A maintainer is anyone who merged a pull request in the repo or is labelled owner, member or collaborator (ADR 0004). Data pulled before the `mergedBy` change has no merger identity and uses the label rule alone, which misses maintainers whose organisation membership is private. *Remove this note once the full re-pull has been run.*
-- **Open-bug backlog.** The normal pull fetches items updated since 1 Oct 2025, so `pull_open_issues.py` adds every older issue that is still open. Until it has been run the backlog is a lower bound. *Remove this note once it has been run.*
+- **Maintainer identification.** A maintainer is anyone who merged a pull request in the repo or is labelled owner, member or collaborator (ADR 0004). All 30 repositories were re-pulled with the merger identity and the raw list of first responders, so the rule applies throughout. It still cannot recognise a maintainer who answers threads but has never merged a pull request.
+- **Open-bug backlog.** The normal pull fetches items updated since 1 Oct 2025, so `pull_open_issues.py` adds every older issue that is still open (22,128 older open issues loaded, against 28,055 open in total). With them, open bugs across the 30 repositories fell about 20% (9,997 in Oct 2025 to 7,968 in Sep 2026), far less than the first, incomplete pull suggested. The backlog is scored only for repositories where at least 10% of issues carry a bug label.
 - **Unanswered share** means: no maintainer response within 7 days, for items older than 7 days and not opened by a maintainer. It is a proxy for responsiveness, not a measure of it.
 - **Tiers are quartiles.** They always split roughly 8 / 8 / 7 / 7 and are not absolute judgements.
 - **Percentile ranking stretches small differences.** Retention values of about 1–10% become a full 0–1 spread.
