@@ -48,6 +48,8 @@ The audience is a product, platform or engineering-management team deciding whic
 | A 0–100 health score per repository, monthly and current | `fct_health_score_monthly`, `fct_repo_health_current` |
 | A multi-page Tableau Public dashboard | link above |
 | A Google Sheet serving layer that refreshes the dashboard | `scripts/to_sheets.py` |
+| Key Insights text generated from the data (24 sentences), so text and charts cannot disagree | `scripts/insights.py` |
+| A weekly automated refresh: pull, test, publish | `.github/workflows/weekly-refresh.yml` |
 | Validation: sensitivity analysis, backtest, source-fidelity check | `docs/` |
 | Written decisions and metric definitions | `docs/decisions/`, `docs/metrics.md` |
 
@@ -79,6 +81,8 @@ flowchart LR
         TST["50 nodes in the build,<br/>including data tests"]
     end
 
+    INS["insights.py<br/>24 generated sentences"]
+    GHA["GitHub Actions<br/>weekly, Mondays 03:30 UTC"]
     SHEET[("Google Sheet<br/>oss-intel-marts")]
     TAB["Tableau Public<br/>daily sync from Sheet"]
 
@@ -89,6 +93,8 @@ flowchart LR
     GQL --> P5 --> RAW
     RAW --> STG --> INT --> MART --> TST
     MART -->|"scripts/to_sheets.py"| SHEET --> TAB
+    MART --> INS -->|"insights tab"| SHEET
+    GHA -.->|"runs the pipeline"| P1
 ```
 
 **Why this shape**
@@ -272,6 +278,8 @@ Built in Tableau Public from the Google Sheet. Fixed-size pages, consistent navi
 | Releases & Quality | Do releases precede a bug spike? | `docs/images/05-release-reliability.png` |
 | Data Source Validation | Can the underlying data be trusted? | `docs/images/06-source-fidelity.png` |
 
+**Key Insights are generated, not typed.** Each page has four insight cards. `scripts/insights.py` reads the same marts as the charts, fills sentence templates with computed numbers and `to_sheets.py` publishes them as the `insights` tab (24 rows: `page`, `ord`, `headline`, `text`). Tableau shows them in small worksheets filtered by page and order. The wording only describes numbers, never causes; direction words (rose, fell, broadly flat) come from a 5% threshold; the partial latest month is dropped. Typed text had gone stale, which is why this exists.
+
 ![Maintainer and risk](docs/images/02-maintainer-risk.png)
 
 ![Bug backlog](docs/images/03-bug-backlog.png)
@@ -351,7 +359,8 @@ I would rather state these than have a reviewer find them.
 - **Retention is left-truncated** and measures activity, not survival.
 - **Bug labels.** Counts depend on each project's labelling. Repos where under 10% of issues carry a bug label (duckdb, requests, seaborn, xgboost, matplotlib, python-bigquery) get a neutral backlog score instead of a good one, but their counts are still not comparable with other projects'.
 - **Direct pushes are invisible.** Work committed without a PR is not seen.
-- **Refresh is manual today.** Run `dbt build` and `to_sheets.py`; a scheduled job is on the roadmap.
+- **Refresh is weekly, not live.** GitHub Actions refreshes the data every Monday and Tableau Public re-reads the Sheet about once a day, so the dashboard can be up to about a week old. Older open issues are re-pulled only by a manual run.
+- **Criticality tier is a judgement label.** I assigned tier_1 (11 repositories), tier_2 (12) and tier_3 (7) by how much is built on a library and how hard it is to replace. It is not computed and not part of the health score; replacing it with a measured value such as dependent-package counts is a next step.
 - **Public data only.** No internal incident, dependency-usage or revenue data.
 
 ## 13. Run it yourself
@@ -406,6 +415,26 @@ Share the Sheet with the service account's `client_email` as Editor, or you will
 
 **Secrets:** `.env` and `service_account.json` are git-ignored. Never commit them.
 
+**Weekly automation (GitHub Actions)**
+
+`.github/workflows/weekly-refresh.yml` runs every Monday at 03:30 UTC and can also be started by hand from the Actions tab. It pulls new data, runs `dbt build` (the run stops if any of the 50 nodes fail), publishes to the Sheet, then commits the new raw data and watermarks back to the repo.
+
+Set up once in the repository's Settings:
+
+| Secret | Value |
+|---|---|
+| `GH_PAT` | A personal access token (the built-in token has a lower GraphQL limit) |
+| `GSHEET_ID` | The ID in the Sheet's URL, between `/d/` and `/edit` |
+| `GCP_SERVICE_ACCOUNT_JSON` | The full contents of `service_account.json` |
+
+Also set Settings, Actions, General, Workflow permissions to Read and write. Because the job commits to `main`, run `git pull` before your next push. To re-pull older open issues, start the workflow by hand and tick the option.
+
+**Print the Key Insights locally**
+
+```bash
+python scripts/insights.py
+```
+
 ## 14. Repository layout
 
 ```
@@ -422,7 +451,7 @@ Share the Sheet with the service account's `client_email` as Editor, or you will
 │   └── marts/              dim_repo, fct_*   (what Tableau reads)
 ├── tests/                  singular data tests
 ├── macros/                 as_of() - the fixed reference date for every window
-├── scripts/                ingestion, backtest, sensitivity, to_sheets
+├── scripts/                ingestion, backtest, sensitivity, insights, to_sheets
 ├── docs/
 │   ├── metrics.md          every definition and caveat
 │   ├── backtest_summary.md
@@ -431,16 +460,16 @@ Share the Sheet with the service account's `client_email` as Editor, or you will
 │   └── images/             dashboard screenshots
 ├── data/raw/               Parquet snapshots (committed so a fresh clone can build)
 ├── warehouse/              DuckDB file (git-ignored)
-└── .github/workflows/      pipeline-check
+└── .github/workflows/      pipeline-check, weekly-refresh
 ```
 
 ## 15. Roadmap: future development
 
-Grouped by theme and ordered roughly by value for effort. Nothing below is built yet; the status column says so plainly.
+Grouped by theme and ordered roughly by value for effort. Nothing below is built yet, except where stated; the weekly pipeline and the generated Key Insights are done and described in sections 8 and 13.
 
 ```mermaid
 flowchart LR
-    N["Now<br/>manual refresh,<br/>30 repos"] --> A["Next<br/>correctness fixes,<br/>automated refresh,<br/>CI that builds"]
+    N["Now<br/>weekly refresh,<br/>generated insights,<br/>30 repos"] --> A["Next<br/>correctness fixes,<br/>CI that builds,<br/>failure alerts"]
     A --> B["Later<br/>more repos,<br/>alerts, richer signals,<br/>forecasting"]
     B --> C["With internal data<br/>dependency-weighted<br/>risk and incident link"]
 ```
@@ -455,7 +484,7 @@ flowchart LR
 
 ### 15.2 Next: automation
 
-- **Scheduled daily pipeline** in GitHub Actions: pull → `dbt build` → `to_sheets.py`, with the GitHub token and service account stored as repository secrets.
+- **Done: weekly pipeline** in GitHub Actions (pull, `dbt build`, `to_sheets.py`, commit), with the token and service account stored as repository secrets.
 - **CI that runs `dbt build`** on every pull request, not only an import check, so a broken model cannot reach `main`.
 - **Data freshness check** that fails loudly if the newest ingested date is older than a threshold.
 - **Failure notification** (email or Slack) when a scheduled run fails or a data test fails.
